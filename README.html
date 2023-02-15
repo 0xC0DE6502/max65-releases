@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>README.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="max65-user-guide">max65 User Guide</h1>
+<p><code>max65</code> is a command-line macro cross-assembler for the 65xx CPU family. It is useful for many systems but it specifically targets 8-bit Acorn computers like the Electron and BBC Micro.</p>
+<p>This user guide explains how to use <code>max65</code> but is not a tutorial on 65xx assembly programming. There are many books and online resources about that.</p>
+<p>The entire <code>max65</code> package is Copyright © 2022-2023 <a href="https://twitter.com/0xC0DE6502">0xC0DE</a> (<a href="mailto:0xC0DE6502@gmail.com">0xC0DE6502@gmail.com</a>). All rights reserved.</p>
+<h2 id="table-of-contents">Table of contents</h2>
+<p><a href="#example-program">Example program</a><br>
+<a href="#overview">Overview</a><br>
+<a href="#command-line-options">Command-line options</a><br>
+<a href="#error-and-warning-messages">Error and warning messages</a><br>
+<a href="#expressions">Expressions</a><br>
+    <a href="#literals">Literals</a><br>
+    <a href="#symbols">Symbols</a><br>
+        <a href="#predefined-global-symbols">Predefined global symbols</a><br>
+        <a href="#symbol-scopes">Symbol scopes</a><br>
+    <a href="#operators">Operators</a><br>
+    <a href="#built-in-functions">Built-in functions</a><br>
+<a href="#assembler-directives">Assembler directives</a><br>
+<a href="#macros">Macros</a><br>
+<a href="#comparing-with-beebasm">Comparing with BeebAsm</a><br>
+<a href="#features-beyond-beebasm">Features beyond BeebAsm</a><br>
+<a href="#quirks-and-tips">Quirks and tips</a><br>
+<a href="#download-and-install">Download and install</a><br>
+<a href="#changelog">Changelog</a><br>
+<a href="#disclaimer">Disclaimer</a><br>
+<a href="#contact">Contact</a></p>
+<h2 id="example-program">Example program</h2>
+<p>Let's dive right in with a short but real program to demonstrate some of the features of <code>max65</code>:</p>
+<pre class="hljs"><code><div>  \ define some constants
+  RUN_ADDR=$0400              ; binary will execute at this address
+  LOAD_ADDR=$2000             ; binary will load at this address
+  OFFSET=LOAD_ADDR-RUN_ADDR   ; displacement between main program and relocator
+
+  \ define zeropage variables
+  org 0                       ; start assembling at address $0000
+.sin skip 2                   ; reserve 2 bytes for zeropage variable 'sin'
+
+  \ main program
+  org RUN_ADDR                ; continue assembling at address 'RUN_ADDR'
+.main                         ; named label 'main': start of main program
+  lda #&lt;S: sta sin+0          ; write low byte of 'S' to zeropage variable 'sin'
+  lda #&gt;S: sta sin+1          ; write high byte of 'S' to zeropage variable 'sin'
+  ; defining 'S' *after* using it is perfectly legal (lazy expression evaluation)
+  S=(1&lt;&lt;16)*sin(rad(deg(45))) ; set 'S': use complex expressions and built-in functions
+  rts                         ; return to caller
+.end                          ; end of main program
+
+  \ relocator stub that moves main program from 'LOAD_ADDR' to 'RUN_ADDR'
+  org *, *+OFFSET             ; continue assembling at current PC (*)
+                              ; but also set logical PC to where relocator will execute
+.entry                        ; program entry (execution starts here)
+  ldx #end-main               ; number of bytes to copy (size of main program)
+.                             ; anonymous (unnamed) label
+  lda LOAD_ADDR-1,x           ; copy byte from 'LOAD_ADDR' area
+  sta RUN_ADDR-1,x            ;           to 'RUN_ADDR' area
+  dex                         ; point register X to next byte
+  bne -                       ; branch to previously defined anonymous label
+  jmp main                    ; finally, execute main program at 'RUN_ADDR'
+
+  ; save the final binary named &quot;CODE&quot; from label 'main' to current PC (*)
+  ; also save its accompanying .INF file
+  ; set execution address to 'entry' (the $FF0000 signifies a host address)
+  ; set load address to 'LOAD_ADDR' (again, the $FF0000 signifies a host address)
+  save &quot;CODE&quot;, main, *, $FF0000|entry, $FF0000|LOAD_ADDR
+</div></code></pre>
+<h2 id="overview">Overview</h2>
+<p><code>max65</code> is heavily inspired by BeebAsm and aims to improve and extend it. If you are familiar with BeebAsm and/or BBC BASIC, many assembler directives and built-in functions are instantly recognisable. For a quick start, see <a href="#comparing-with-beebasm">Comparing with BeebAsm</a> and <a href="#features-beyond-beebasm">Features beyond BeebAsm</a>.</p>
+<p><code>max65</code> is a two-pass assembler. In pass 1 source files are tokenised and tokens are parsed to internal commands. In pass 2 these internal commands are translated to machine code and data. A source file is a plain text file consisting of 65xx instructions, assembler directives, label definitions and symbol assignments. Each element may be put on a separate line. A single line may also contain multiple elements, separated by colons (<code>:</code>). A source file also usually contains whitespace and comments.</p>
+<p>This example shows all elements in a source file:</p>
+<pre class="hljs"><code><div>  org &amp;e00       ; assembler directive
+.start           ; label definition
+  NUM=%1000_0000 ; symbol assignment
+  lda #NUM&gt;&gt;2    ; 65xx instruction
+</div></code></pre>
+<p><code>max65</code> uses lazy expression evaluation. The main benefit for the user is that any symbol may be used (forward referenced) before being defined. The only exception is that macros must be defined before use. In pass 2 the final evaluation of expressions is done and all symbols must be resolved then of course. Example of forward referencing:</p>
+<pre class="hljs"><code><div>  ; All symbols below are used before being defined
+  lda data,x
+  sta &amp;5800+N*320
+  rts
+.data equb D1, D2, D3
+  D1=D3-N: D2=D1*2: D3=42: N=10
+</div></code></pre>
+<p>In some cases <code>max65</code> needs to make an educated guess in pass 1 about forward references, especially when the choice between zeropage and absolute addressing modes needs to be made. It is therefore recommended (but not required) to define zeropage labels as early as possible in your program.</p>
+<h2 id="command-line-options">Command-line options</h2>
+<p>Here is a brief summary of how to invoke <code>max65</code>:</p>
+<pre class="hljs"><code><div>max65 [-h] &lt;infile&gt;
+</div></code></pre>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;infile&gt;</code></td>
+<td>Input file (plain text source).</td>
+</tr>
+<tr>
+<td><code>-h</code></td>
+<td>Show a help message and exit.</td>
+</tr>
+</tbody>
+</table>
+<p>Example command-line: <code>max65 main.6502</code>.</p>
+<h2 id="error-and-warning-messages">Error and warning messages</h2>
+<p>When all goes well <code>max65</code> happily assembles the source file and exits with exit code 0 (success). However, when <code>max65</code> fails to assemble the source file, an error message is written to the standard error file (stderr) and the assembler exits with exit code 1 (failure). An error message shows the source filename, line number and cause of the error. Example of a typical error message: <code>*** error in pass 2: file main.6502, line 10: operator '/' doesn't work on strings</code>.</p>
+<p>In a few cases <code>max65</code> writes a warning message to stderr, but continues assembling your program. Example of a typical warning message: <code>*** warning in pass 2: file main.6502, line 6: instruction 'lda' can be assembled 1 byte shorter in zeropage addressing mode</code>.</p>
+<h2 id="expressions">Expressions</h2>
+<p><code>max65</code> can handle arbitrarily complex expressions in directives, symbol assignments or 65xx instructions. Expressions consist of literals, symbols, operators and built-in functions. Each expression must eventually evaluate to an integer, float or string in pass 2.</p>
+<h3 id="literals">Literals</h3>
+<p>You can use integer, float and string literals in expressions.</p>
+<ul>
+<li>
+<p><strong>Integers</strong> are positive or negative whole numbers, of just about any size. In practice you will use 8-bit, 16-bit or 32-bit integers though. You may use decimal notation (e.g. <code>123</code>, <code>-64</code>), hexadecimal notation (e.g. <code>$FFEE</code>, <code>-&amp;ac</code>), binary notation (e.g. <code>%1101</code>, <code>-%11110</code>) or char notation (e.g. <code>'a'</code>, <code>-'C'</code>).<br>Use an underscore (<code>_</code>) or a single quote (<code>'</code>) to group digits, e.g. <code>%110_001</code>, <code>&amp;FE'03</code>, <code>12'34_56</code>.<br>Some chars need to be escaped with a backslash (<code>\</code>): <code>'\\'</code>, <code>'\''</code>. Empty chars (<code>''</code>) are not allowed.</p>
+</li>
+<li>
+<p><strong>Floats</strong> are positive or negative fractional numbers, of just about any size. Only decimal notation is supported with at least 1 digit before and after the decimal point, e.g. <code>3.1415</code>, <code>-5.0</code>, but not <code>.001</code>. Scientific notation (e.g. <code>1.23E-6</code>) is not supported.<br>In many cases only the integer part of a float will be used automatically. For instance, <code>ldx #3.14</code> will be assembled as <code>ldx #3</code>.</p>
+</li>
+<li>
+<p><strong>Strings</strong> are sequences of 0 or more characters, enclosed in double quotation marks. Examples: <code>&quot;&quot;</code>, <code>&quot;Hello!&quot;</code>, <code>&quot;This is a backslash: \\&quot;</code>. Unlike an empty char (<code>''</code>), an empty string (<code>&quot;&quot;</code>) is perfectly allowed. Some characters in a string need to be escaped with a backslash (<code>\</code>): <code>'\\'</code>, <code>'\&quot;'</code>.</p>
+</li>
+</ul>
+<h3 id="symbols">Symbols</h3>
+<p>Symbols are used to name things in a source file. The name of a symbol is case sensitive and consists of any mix of digits, letters and underscores. It must not start with a digit though. Examples of valid symbol names are: <code>_</code>, <code>Lives</code>, <code>data_Table4</code>. A symbol has a <a href="#symbol-scopes">specific scope</a> in which it is valid and it (eventually) always refers to an integer, float or string. There are some <a href="#predefined-global-symbols">predefined global symbols</a>.</p>
+<blockquote>
+<p>Once defined, the value of a symbol cannot be changed by the programmer.</p>
+</blockquote>
+<p>A symbol is defined in 1 of 5 ways:</p>
+<ol>
+<li>
+<p><strong>Label definition</strong>. A label is defined by a period (<code>.</code>) directly followed by a symbol name, e.g. <code>.sine256</code>, <code>.current_level</code>. The symbol is added to the internal nametable at the current scope level, unless it already exists there. Its value is set to the current program counter (PC) which is a 16-bit integer.<br>
+You can also define anonymous (unnamed) labels by simply using a period without name:</p>
+<pre class="hljs"><code><div>.       ; anonymous label #1
+tya
+beq +   ; jump to anonymous label #2
+txa
+beq ++  ; jump to anonymous label #3
+.       ; anonymous label #2
+iny
+bpl --  ; jump to anonymous label #1
+.       ; anonymous label #3
+dex
+bmi --- ; jump to anonymous label #1
+</div></code></pre>
+</li>
+<li>
+<p><strong>Symbol assignment</strong>. An assignment consists of a symbol name, followed by an equal sign (<code>=</code>), and an expression. Examples: <code>N=3</code>, <code>start_addr=&amp;5800+N*&amp;140</code>. The expression stored with the symbol in the nametable can contain forward references but must eventually evaluate to an integer, float or string.</p>
+</li>
+<li>
+<p><strong>Assembler directive <code>for</code></strong>. A <code>for...next</code> loop defines a local scope for every cycle of the loop with the <code>for</code>-loop variable (integer or float) as a local symbol. Example: <code>for n, 1, 10 ... next</code>. The body of the loop is assembled 10 times within the context of that local scope. The local symbol <code>n</code> increments from 1 to 10 during that time.</p>
+</li>
+<li>
+<p><strong>Macro definition</strong>. When you define a macro, e.g. <code>macro add num1, num2 ... endmacro</code>, a special global symbol based on the macro name is created in the internal nametable, unless a macro with that exact name already exists. Macro names never clash with other symbols and also don't evaluate to any value.</p>
+</li>
+<li>
+<p><strong>Macro call</strong>. When you invoke a previously defined macro, e.g. <code>add 12, 34</code>, a local scope is created with local symbols that are named after the parameters (if any) in the macro definition: <code>num1</code> and <code>num2</code> in this example. Their values are set to the macro call arguments, <code>12</code> and <code>34</code> in this example. The macro body is then assembled within the context of that local scope.</p>
+</li>
+</ol>
+<h4 id="predefined-global-symbols">Predefined global symbols</h4>
+<p><code>max65</code> has some predefined global symbols:</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Type</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PI</code></td>
+<td>Float</td>
+<td>3.141592653589793</td>
+</tr>
+<tr>
+<td><code>FALSE</code></td>
+<td>Integer</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>TRUE</code></td>
+<td>Integer</td>
+<td>-1</td>
+</tr>
+<tr>
+<td><code>*</code> (or <code>P%</code>)</td>
+<td>Integer</td>
+<td>Current PC</td>
+</tr>
+<tr>
+<td><code>@</code></td>
+<td>Integer</td>
+<td>Current logical PC</td>
+</tr>
+<tr>
+<td><code>VERSION</code></td>
+<td>Integer</td>
+<td>Version of <code>max65</code>, e.g. $010A is version 1.10</td>
+</tr>
+</tbody>
+</table>
+<h4 id="symbol-scopes">Symbol scopes</h4>
+<p>You can create virtually unlimited nested local scopes for your symbols using curly braces, e.g.:</p>
+<pre class="hljs"><code><div>N=-1                          ; global symbol 'N'
+.lab                          ; global label 'lab'
+{
+  N=3                         ; local symbol 'N', overrides global symbol 'N'
+  for n, 1, N: equb n: next   ; local symbol 'n' for each loop cycle
+  { .lab print N: N=6 }       ; local label 'lab' and another local symbol 'N'
+                              ; overrides global label 'lab' 
+                              ; and overrides symbol 'N' in parent scope
+}
+</div></code></pre>
+<p>Defining symbols for a different scope within the current scope is also possible by using a special notation, e.g.:</p>
+<pre class="hljs"><code><div>{
+  N*=32         ; define global symbol 'N'
+  {
+    .^lab       ; define local label 'lab' that is visible in current and parent scope
+    .*lab2      ; define global label 'lab2'
+    { N^=-99 }  ; define local symbol 'N' that is visible in current and parent scope
+    print N     ; -99
+  }
+}
+print N         ; 32
+</div></code></pre>
+<h3 id="operators">Operators</h3>
+<p>Operators in order of increasing precedence:</p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Associativity</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;</code>, <code>&gt;</code></td>
+<td>Right</td>
+<td>Equal to <code>lo()</code> and <code>hi()</code> respectively, e.g. <code>lda #&lt;&amp;5800+n*320</code> is the same as <code>lda #lo(&amp;5800+n*320)</code>.</td>
+</tr>
+<tr>
+<td><code>or</code></td>
+<td>Left</td>
+<td>Logical OR, e.g. <code>if addr&gt;=&amp;5800 or addr&lt;&amp;3000</code> ...</td>
+</tr>
+<tr>
+<td><code>and</code></td>
+<td>Left</td>
+<td>Logical AND, e.g. <code>if N==3 and DEBUG</code> ...</td>
+</tr>
+<tr>
+<td><code>\|</code></td>
+<td>Left</td>
+<td>Bitwise OR, e.g. <code>lda #1\|2\|4\|&amp;80</code>.</td>
+</tr>
+<tr>
+<td><code>^</code></td>
+<td>Left</td>
+<td>Bitwise XOR (EOR), e.g. <code>ldx #n^255</code>.</td>
+</tr>
+<tr>
+<td><code>&amp;</code></td>
+<td>Left</td>
+<td>Bitwise AND, e.g. <code>lda #N&amp;3</code>.</td>
+</tr>
+<tr>
+<td><code>==</code>, <code>=</code>, <code>!=</code>, <code>&lt;&gt;</code></td>
+<td>Left</td>
+<td>(In)equality, e.g. <code>assert N!=3 and DBG=2</code>.</td>
+</tr>
+<tr>
+<td><code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code></td>
+<td>Left</td>
+<td>Comparison, e.g. <code>if addr&gt;=&amp;5800 or addr&lt;&amp;3000</code> ...</td>
+</tr>
+<tr>
+<td><code>+</code>, <code>-</code></td>
+<td>Left</td>
+<td>Addition and subtraction, e.g. <code>equw 4*WIDTH-(N+8)</code>, <code>print &quot;S=&quot;+lower$(S)</code>.</td>
+</tr>
+<tr>
+<td><code>*</code>, <code>/</code>, <code>div</code>, <code>mod</code></td>
+<td>Left</td>
+<td>Multiplication and division, e.g. <code>equb 8*(y div 8)</code>, <code>S=3*&quot;ABC&quot;</code></td>
+</tr>
+<tr>
+<td><code>&lt;&lt;</code>, <code>&gt;&gt;</code></td>
+<td>Left</td>
+<td>Bit and string shift, e.g. <code>lda #1&lt;&lt;5-1</code>, <code>equs &quot;Hello world&quot;&gt;&gt;6</code>.</td>
+</tr>
+<tr>
+<td><code>not</code>, <code>~</code>, <code>-</code></td>
+<td>Right</td>
+<td>Logical NOT, bitwise NOT and unary minus, e.g. <code>if not defined(&quot;N&quot;) ...</code>, <code>lda #Q&amp;~3</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="built-in-functions">Built-in functions</h3>
+<p>Built-in functions and expressions in parentheses (or, alternatively, in square brackets) have the highest priority:</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lo()</code></td>
+<td>Least significant byte (lower 8 bits), e.g. <code>adc #lo(SCRN)</code>.</td>
+</tr>
+<tr>
+<td><code>hi()</code></td>
+<td>Most significant byte (upper 8 bits). Technically bits 15..8. E.g. <code>equb hi(SCRN+3*&amp;140)</code>.</td>
+</tr>
+<tr>
+<td><code>sin()</code></td>
+<td>Sine of an angle in radians, e.g. <code>equw 512*sin(t)</code>.</td>
+</tr>
+<tr>
+<td><code>cos()</code></td>
+<td>Cosine of an angle in radians, e.g. <code>N=1024*cos(PI/4)</code>.</td>
+</tr>
+<tr>
+<td><code>tan()</code></td>
+<td>Tangent of an angle in radians, e.g. <code>equd 32*tan(2*t)</code>.</td>
+</tr>
+<tr>
+<td><code>asn()</code></td>
+<td>Arc sine (only defined for domain [-1, 1]), e.g. <code>n=asn(-0.5)</code>.</td>
+</tr>
+<tr>
+<td><code>acs()</code></td>
+<td>Arc cosine (only defined for domain [-1, 1]), e.g. <code>n=acs(0.3*x)</code>.</td>
+</tr>
+<tr>
+<td><code>atn()</code></td>
+<td>Arc tangent, e.g. <code>T=atn(100)</code>.</td>
+</tr>
+<tr>
+<td><code>deg()</code></td>
+<td>Convert radians to degrees, e.g. <code>d=deg(PI/8)</code>.</td>
+</tr>
+<tr>
+<td><code>rad()</code></td>
+<td>Convert degrees to radians, e.g. <code>r=rad(180)</code>.</td>
+</tr>
+<tr>
+<td><code>int()</code></td>
+<td>Truncate float to integer, e.g. <code>lda #int(3.14)</code>.</td>
+</tr>
+<tr>
+<td><code>abs()</code></td>
+<td>Absolute value, e.g. <code>m=abs(sin(t))</code>.</td>
+</tr>
+<tr>
+<td><code>sqr()</code></td>
+<td>Square root (only defined for values &gt;=0), e.g. <code>rt=sqr(36)</code></td>
+</tr>
+<tr>
+<td><code>sgn()</code></td>
+<td>Sign of its argument: -1 for negative values, 0 for zero, 1 for positive values. E.g. <code>p=x+16*sgn(n)</code>.</td>
+</tr>
+<tr>
+<td><code>log()</code></td>
+<td>Logarithm (base 10, only defined for values &gt;0), e.g. <code>equb log(1000)</code>.</td>
+</tr>
+<tr>
+<td><code>ln()</code></td>
+<td>Logarithm (base <em>e</em>, only defined for values &gt;0), e.g. <code>equb ln(x/3)</code>.</td>
+</tr>
+<tr>
+<td><code>exp()</code></td>
+<td><em>e</em> raised to the power of the argument, e.g. <code>e=exp(1)</code>.</td>
+</tr>
+<tr>
+<td><code>rnd()</code></td>
+<td>Random number. Only defined for integer values &gt;0. <code>rnd(1)</code> returns a float in the range [0, 1]. <code>rnd(n)</code> with integer <code>n</code>&gt;1 returns an integer in the range [1, <code>n</code>]. You can seed the random number generator with the <code>randomize</code> directive.</td>
+</tr>
+<tr>
+<td><code>val()</code></td>
+<td>String to number. Checks if a string starts with a valid integer or float and returns that (or 0 if no number was found). E.g. <code>P=val(&quot;-3.14PI!&quot;)</code>.</td>
+</tr>
+<tr>
+<td><code>len()</code></td>
+<td>Length of a string, e.g. <code>print len(&quot;Hello!&quot;)</code>.</td>
+</tr>
+<tr>
+<td><code>asc()</code></td>
+<td>ASCII value of first character of a string (or -1 for an empty string), e.g. <code>val=asc(&quot;Hello!&quot;)</code>.</td>
+</tr>
+<tr>
+<td><code>str$()</code></td>
+<td>Convert number to a string, e.g. <code>S=str$(123.4)&gt;&gt;1</code></td>
+</tr>
+<tr>
+<td><code>str$~()</code></td>
+<td>Convert number to a string with the number in hexadecimal format, e.g. <code>print &quot;$&quot;, str$~(128)</code>. Note: negative numbers are not printed in two's complement, so for example <code>str$~(-140)</code> translates to the string <code>&quot;-8C&quot;</code>, not <code>&quot;FFFFFF74&quot;</code> (which assumes 32-bit).</td>
+</tr>
+<tr>
+<td><code>chr$()</code></td>
+<td>Convert an ASCII value to a string of length 1 containing that ASCII character. Only valid for domain [32, 126]. E.g. <code>S=chr$(122)</code>.</td>
+</tr>
+<tr>
+<td><code>lower$()</code></td>
+<td>Convert a string to lowercase, e.g. <code>S=lower$(&quot;ABC123&quot;)</code></td>
+</tr>
+<tr>
+<td><code>upper$()</code></td>
+<td>Convert a string to uppercase, e.g. <code>S=upper$(&quot;abc123&quot;)</code></td>
+</tr>
+<tr>
+<td><code>time$()</code></td>
+<td>Date and time of assembly (string). The argument is a string that determines the date/time format as specified by the Python (or C) function <code>strftime()</code>.  <code>time$(&quot;&quot;)</code> returns date/time formatted as <code>&quot;%a,%d %b %Y.%H:%M:%S&quot;</code>, e.g. <code>&quot;Mon,16 Jan 2023.17:46:03&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>defined()</code></td>
+<td>Check if symbol is defined (returns <code>TRUE</code>) or not (returns <code>FALSE</code>), e.g. <code>if not defined(&quot;SCRN&quot;)</code> ...</td>
+</tr>
+</tbody>
+</table>
+<h2 id="assembler-directives">Assembler directives</h2>
+<p>Directives (or pseudo-ops) control the assembly process. A directive takes zero or more arguments. For instance, <code>skip 64</code> tells <code>max65</code> to skip 64 bytes. An argument is an expression that must evaluate to an integer, float or string. Floats are truncated when an integer is expected.</p>
+<p>Sometimes the value of an argument must be known in pass 1 to let the assembler make the right decision. This means expressions must not contain unresolved symbols (forward references). For instance, in an <code>include</code> directive, <code>max65</code> must immediately know the name of the source file to include.</p>
+<p>Other directives, like <code>print</code>, only evaluate their arguments in pass 2. In this case expressions that still have unresolved symbols (forward references) after pass 1 are allowed.</p>
+<p>Directives that evaluate their arguments in pass 1:</p>
+<table>
+<thead>
+<tr>
+<th>Directive</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>align</code></strong> <em><code>expr</code></em></td>
+<td>Increment PC to next multiple of <em><code>expr</code></em>, e.g. <code>align 256</code> aligns PC to the next memory page.</td>
+</tr>
+<tr>
+<td><strong><code>elif</code></strong> <em><code>expr</code></em></td>
+<td>Mark the start of an <code>elif</code>-block in an <code>if...endif</code>. See <code>if</code>.</td>
+</tr>
+<tr>
+<td><strong><code>else</code></strong></td>
+<td>Mark the start of an <code>else</code>-block in an <code>if...endif</code>. See <code>if</code>.</td>
+</tr>
+<tr>
+<td><strong><code>endif</code></strong></td>
+<td>Mark the end of an <code>if...endif</code> block. See <code>if</code>.</td>
+</tr>
+<tr>
+<td><strong><code>endmacro</code></strong></td>
+<td>Mark the end of a macro definition. See <code>macro</code>.</td>
+</tr>
+<tr>
+<td><strong><code>equb</code></strong> <em><code>expr_1 [, expr_2, ..., expr_n]</code></em></td>
+<td>Insert one or more bytes and/or strings, e.g. <code>equb &quot;Hello!&quot;, 13, 10, 0</code>. For numeric arguments forward references are allowed.</td>
+</tr>
+<tr>
+<td><strong><code>equs</code></strong></td>
+<td>Equivalent to <code>equb</code>.</td>
+</tr>
+<tr>
+<td><strong><code>for</code></strong> <em><code>sym</code></em><code>,</code> <em><code>expr_1</code></em><code>,</code> <em><code>expr_2 [, expr_3] ...</code></em> <strong><code>next</code></strong></td>
+<td>Assemble a block of code/data one or more times. The loop counter <em><code>sym</code></em> is a local symbol which changes from <em><code>expr_1</code></em> to <em><code>expr_2</code></em> (inclusive) in steps of <em><code>expr_3</code></em> (-1 or 1 if unspecified). Examples: <code>for n, 0, 9: equb n: next</code>. Or: <code>for f, 3.5, -1.5, -0.75: print f: next</code>.</td>
+</tr>
+<tr>
+<td><strong><code>if</code></strong> <em><code>expr_1 ... [</code></em><strong><code>elif</code></strong> <em><code>expr_2 ...] ... [</code></em><strong><code>elif</code></strong> <em><code>expr_n ...] [</code></em><strong><code>else</code></strong> <em><code>...]</code></em> <strong><code>endif</code></strong></td>
+<td>Conditional assembly. Assemble the code/data block for which the corresponding <code>if</code>-condition or the first <code>elif</code>-condition (in order of appearance) evaluates to a non-zero number (<code>TRUE</code>). When none exists, assemble the <code>else</code>-block (if any). Examples: <code>if n&gt;3: print n: endif</code>. Or: <code>if n&gt;3: print n: elif n&lt;-3: print -n: else: print &quot;Invalid&quot;: endif</code>.</td>
+</tr>
+<tr>
+<td><strong><code>incbin</code></strong> <em><code>expr</code></em></td>
+<td>Insert binary file named <em><code>expr</code></em>, e.g. <code>incbin &quot;data/table.bin&quot;</code>. <em><code>expr</code></em> is a string that contains a valid path to an existing file.</td>
+</tr>
+<tr>
+<td><strong><code>include</code></strong> <em><code>expr</code></em></td>
+<td>Assemble and insert source file named <em><code>expr</code></em>, e.g. <code>include &quot;src/spriteplot.asm&quot;</code>. <em><code>expr</code></em> is a string that contains a valid path to an existing file.</td>
+</tr>
+<tr>
+<td><strong><code>macro</code></strong> <em><code>sym_1 [, sym_2, ..., sym_n] ...</code></em> <strong><code>endmacro</code></strong></td>
+<td>Define a macro named <em><code>sym_1</code></em> with optional parameters named <em><code>sym_2</code></em>, ..., <em><code>sym_n</code></em>. See also: <a href="#macros">Macros</a>.</td>
+</tr>
+<tr>
+<td><strong><code>next</code></strong></td>
+<td>Mark the end of a <code>for...next</code> loop. See <code>for</code>.</td>
+</tr>
+<tr>
+<td><strong><code>org</code></strong> <em><code>expr_1 [, expr_2]</code></em></td>
+<td>Set PC (where code/data is assembled) to <em><code>expr_1</code></em>. Also set the logical PC (on which labels are based) to <em><code>expr_2</code></em>. If <em><code>expr_2</code></em> is not specified, the logical PC will be equal to PC. Examples: <code>org $1000</code>. Or: <code>org $1000, $2000</code>.</td>
+</tr>
+<tr>
+<td><strong><code>skip</code></strong> <em><code>expr</code></em></td>
+<td>Increment PC by <em><code>expr</code></em> bytes, e.g. <code>skip 16</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Directives that evaluate their arguments in pass 2:</p>
+<table>
+<thead>
+<tr>
+<th>Directive</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>assert</code></strong> <em><code>expr_1 [, expr_2, ..., expr_n]</code></em></td>
+<td>Evaluate one or more arguments and trigger an error for the first expression (in order of appearance) that is zero (<code>FALSE</code>). Example: <code>assert N&lt;128, P%&lt;$1000</code>.</td>
+</tr>
+<tr>
+<td><strong><code>error</code></strong> <em><code>[expr_1, ..., expr_n]</code></em></td>
+<td>Trigger an error after printing <em><code>expr_1</code></em>, ..., <em><code>expr_n</code></em> to the standard error file (stderr). Example: <code>if N&gt;=128: error &quot;Expected N&lt;128, but N=&quot;, N: endif</code>.</td>
+</tr>
+<tr>
+<td><strong><code>equd</code></strong> <em><code>expr_1 [, expr_2, ..., expr_n]</code></em></td>
+<td>Insert one or more double words (32-bit integers), e.g. <code>equd $C0DE6502</code>.</td>
+</tr>
+<tr>
+<td><strong><code>equw</code></strong> <em><code>expr_1 [, expr_2, ..., expr_n]</code></em></td>
+<td>Insert one or more words (16-bit integers), e.g. <code>equw $C0DE</code>.</td>
+</tr>
+<tr>
+<td><strong><code>guard</code></strong> <em><code>[expr_1, ..., expr_n]</code></em></td>
+<td>Set multiple guards at addresses <em><code>expr_1</code></em>, ..., <em><code>epxr_n</code></em>. An address guard triggers an error when code/data is assembled at that address. When no arguments are given, clear all current guards. Example: <code>guard $5800, $8000</code>.</td>
+</tr>
+<tr>
+<td><strong><code>print</code></strong> <em><code>[expr_1, ..., expr_n]</code></em></td>
+<td>Print zero or more expressions <em><code>expr_1</code></em>, ..., <em><code>expr_n</code></em> to the standard output file (stdout) and finish with a newline. When no arguments are given, just print a newline.</td>
+</tr>
+<tr>
+<td><strong><code>randomize</code></strong> <em><code>expr</code></em></td>
+<td>Seed the random number generator with <em><code>expr</code></em>, e.g. <code>randomize 12345</code>. <em><code>expr</code></em> can be any integer, float or string.</td>
+</tr>
+<tr>
+<td><strong><code>save</code></strong> <em><code>expr_1, expr_2, expr_3 [, expr_4 [, expr_5]]</code></em></td>
+<td>Save a code/data block from the 64Kb address space to a binary file named <em><code>expr_1</code></em>. The block starts at <em><code>expr_2</code></em> and ends at <em><code>expr_3</code></em> (exclusive). The optional execution address <em><code>expr_4</code></em> and load address <em><code>expr_5</code></em> are used in the accompanying .inf file. When not specified, these are equal to <em><code>expr_2</code></em>. Example: <code>save &quot;CODE&quot;, $1000, $2000, $f25, $e00</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="macros">Macros</h2>
+<p>Macros are user defined code/data blocks and can be inserted anywhere in your program using a macro call. A macro is always global and must be defined before use. It takes zero or more parameters. Here is an example of a macro definition and a macro call:</p>
+<pre class="hljs"><code><div>\ macro definition
+macro add_ptr ptr, val    ; 2 parameters
+  lda ptr
+  clc
+  adc #lo(val)
+  sta ptr
+  lda ptr+1
+  adc #hi(val)
+  sta ptr+1
+endmacro
+
+\ macro call
+add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
+</div></code></pre>
+<p>The macro call defines a local scope and binds the given arguments to the macro parameters. The macro call above therefore expands to:</p>
+<pre class="hljs"><code><div>{
+  ptr=&amp;70
+  val=&amp;140
+  lda ptr
+  clc
+  adc #lo(val)
+  sta ptr
+  lda ptr+1
+  adc #hi(val)
+  sta ptr+1
+}
+</div></code></pre>
+<p>A macro can call other macros and even itself recursively.</p>
+<h2 id="comparing-with-beebasm">Comparing with BeebAsm</h2>
+<p><code>max65</code> follows BeebAsm's syntax closely, but there are some differences and alternatives:</p>
+<table>
+<thead>
+<tr>
+<th>BeebAsm</th>
+<th><code>max65</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LEFT$(&quot;abcde&quot;, 3)</code> (equals <code>&quot;abc&quot;</code>)</td>
+<td><code>&quot;abcde&quot;&gt;&gt;2</code></td>
+</tr>
+<tr>
+<td><code>RIGHT$(&quot;abcde&quot;, 3)</code> (equals <code>&quot;cde&quot;</code>)</td>
+<td><code>&quot;abcde&quot;&lt;&lt;2</code></td>
+</tr>
+<tr>
+<td><code>MID$(&quot;abcde&quot;, 2, 3)</code> (equals <code>&quot;bcd&quot;</code>)</td>
+<td><code>&quot;abcde&quot;&lt;&lt;1&gt;&gt;1</code></td>
+</tr>
+<tr>
+<td><code>STRING$(3, &quot;ABC&quot;)</code> (equals <code>&quot;ABCABCABC&quot;</code>)</td>
+<td><code>&quot;ABC&quot;*3</code></td>
+</tr>
+<tr>
+<td><code>N=?3</code> (define <code>N</code> if not defined yet)</td>
+<td><code>if not defined(&quot;N&quot;): N=3: endif</code></td>
+</tr>
+<tr>
+<td><code>COPYBLOCK $1000, $1100, $500</code></td>
+<td><code>org $500, $1000</code></td>
+</tr>
+<tr>
+<td><code>x^y</code> (raise to the power of)</td>
+<td><code>exp(y*ln(x))</code> for <code>x</code>&gt;0</td>
+</tr>
+<tr>
+<td><code>EVAL()</code></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>TIME$</code></td>
+<td><code>TIME$(&quot;&quot;)</code></td>
+</tr>
+<tr>
+<td><code>CPU</code></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>AND</code> (logical)</td>
+<td><code>and</code></td>
+</tr>
+<tr>
+<td><code>AND</code> (bitwise)</td>
+<td><code>&amp;</code></td>
+</tr>
+<tr>
+<td><code>OR</code> (logical)</td>
+<td><code>or</code></td>
+</tr>
+<tr>
+<td><code>OR</code> (bitwise)</td>
+<td><code>\|</code></td>
+</tr>
+<tr>
+<td><code>EOR</code> (logical)</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>EOR</code> (bitwise)</td>
+<td><code>^</code></td>
+</tr>
+<tr>
+<td><code>NOT</code> (logical)</td>
+<td><code>not</code></td>
+</tr>
+<tr>
+<td><code>NOT</code> (bitwise)</td>
+<td><code>~</code></td>
+</tr>
+<tr>
+<td><code>SKIPTO $2000</code></td>
+<td><code>org $2000</code></td>
+</tr>
+<tr>
+<td><code>CLEAR</code></td>
+<td><code>guard</code> (without args) clears all guards only</td>
+</tr>
+<tr>
+<td><code>MAPCHAR</code></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>PRINT ~200</code> (equals <code>&quot;&amp;C8&quot;</code>)</td>
+<td><code>print &quot;&amp;&quot;+str$~(200)</code></td>
+</tr>
+<tr>
+<td><code>ASM()</code></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>FILELINE$</code></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>CALLSTACK$</code></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>&quot;AB&quot;&quot;CD&quot;</code> (quote doubling)</td>
+<td><code>&quot;AB\&quot;CD&quot;</code> (escape char)</td>
+</tr>
+<tr>
+<td><code>PUTTEXT</code></td>
+<td>N/A (no .ssd disk image I/O)</td>
+</tr>
+<tr>
+<td><code>PUTFILE</code></td>
+<td>N/A (no .ssd disk image I/O)</td>
+</tr>
+<tr>
+<td><code>PUTBASIC</code></td>
+<td>N/A (no .ssd disk image I/O)</td>
+</tr>
+<tr>
+<td><code>RND(100)</code> (random integer x, 0&lt;=x&lt;=99)</td>
+<td>1&lt;=x&lt;=100 (like BBC BASIC)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="features-beyond-beebasm">Features beyond BeebAsm</h2>
+<p><code>max65</code> extends or improves BeebAsm in several ways:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Undocumented 6502 instructions</td>
+<td><code>alr</code>, <code>anc</code>, <code>ane</code>, <code>arr</code>, <code>dcp</code>, <code>dop</code>, <code>hlt</code>, <code>isb</code>, <code>las</code>, <code>lax</code>, <code>nop</code>, <code>rla</code>, <code>rra</code>, <code>sax</code>, <code>sbc</code>, <code>sbx</code>, <code>sha</code>, <code>shx</code>, <code>shy</code>, <code>slo</code>, <code>sre</code>, <code>tas</code>, <code>top</code></td>
+</tr>
+<tr>
+<td><code>N^=3</code></td>
+<td>Define N in parent scope</td>
+</tr>
+<tr>
+<td><code>N*=3</code></td>
+<td>Define N in global scope</td>
+</tr>
+<tr>
+<td><code>&amp;C0_DE</code>, <code>$6'502</code>, <code>1'234</code>, <code>3.14_15</code>, <code>%00_10'00</code></td>
+<td>Digit grouping with <code>_</code> and <code>'</code> for all numbers, not just binary</td>
+</tr>
+<tr>
+<td><code>N=A*A: A=2</code> (forward references in assignments)</td>
+<td>Lazy expression evaluation allows forward references everywhere</td>
+</tr>
+<tr>
+<td><code>N=A*A: A=2*N</code></td>
+<td>Error on detection of circular references</td>
+</tr>
+<tr>
+<td><code>macro m: m: endmacro: m</code></td>
+<td>Error on detection of runaway recursion</td>
+</tr>
+<tr>
+<td>in file a.asm: <code>include &quot;a.asm&quot;</code></td>
+<td>Error on detection of circular <code>include</code>s</td>
+</tr>
+<tr>
+<td><code>org $200, $500</code></td>
+<td>Optional second argument in <code>org</code> directive sets logical PC (<code>@</code>), e.g. assemble at <code>$200</code>, but labels are based on <code>$500</code>. Almost like <code>COPYBLOCK</code> in BeebAsm, or <code>O%</code> in BBC BASIC</td>
+</tr>
+<tr>
+<td><code>&lt;&lt;</code>, <code>&gt;&gt;</code> and <code>*</code> work on strings</td>
+<td><code>&quot;abc&quot;&lt;&lt;1</code> equals <code>&quot;bc&quot;</code>, <code>&quot;abc&quot;&gt;&gt;2</code> equals <code>&quot;a&quot;</code>, <code>&quot;A&quot;*3</code> equals <code>&quot;AAA&quot;</code></td>
+</tr>
+<tr>
+<td><code>{ ... include ... }</code></td>
+<td>Including source files works on any scope level (curly braces), and inside <code>for...next</code> loops as well</td>
+</tr>
+<tr>
+<td><code>randomize</code></td>
+<td>Seed the random number generator with any integer, float or string</td>
+</tr>
+<tr>
+<td><code>error</code></td>
+<td>Accepts zero or more arguments so it works similar to the <code>print</code> directive</td>
+</tr>
+<tr>
+<td><code>defined(&quot;N&quot;)</code></td>
+<td><code>TRUE</code> if symbol <code>N</code> is defined, <code>FALSE</code> otherwise</td>
+</tr>
+<tr>
+<td><code>guard</code></td>
+<td>The <code>guard</code> directive sets one or more guards on the supplied memory addresses. When no arguments are given, all guards are cleared</td>
+</tr>
+<tr>
+<td>zeropage vs absolute</td>
+<td><code>max65</code> issues a friendly warning when an instruction could have used zeropage addressing mode (saving 1 byte)</td>
+</tr>
+<tr>
+<td><code>.</code> (anonymous labels)</td>
+<td>Use <code>.</code> to define unnamed labels. Relative branch instructions can jump backward or forward to them, e.g. <code>bne -</code>, or <code>bpl ++</code></td>
+</tr>
+<tr>
+<td>numbers</td>
+<td>When an integer is expected, a float number is automatically truncated (not rounded) to an integer. Large integers and negative integers are allowed for 65xx instructions and directives like <code>equb</code>/<code>equw</code>/<code>equd</code>. E.g. <code>lda #-2</code> is equal to <code>lda #&amp;fe</code>, <code>ldx #&amp;123</code> is equal to <code>ldx #&amp;23</code> (lower 8 bits), <code>equw $123456</code> is equal to <code>equw $3456</code> (lower 16 bits).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="quirks-and-tips">Quirks and tips</h2>
+<ul>
+<li>You can use / and \\ in file paths, e.g. <code>include &quot;src/prog.asm&quot;</code>, <code>incbin &quot;..\\data.bin&quot;</code>.</li>
+<li>In an <code>if</code>-block or <code>elif</code>-block where the condition evaluates to zero (FALSE), chars and strings still need to be valid because of how the tokeniser works.</li>
+<li>Everything is case insensitive except for symbols which are case sensitive.</li>
+</ul>
+<h2 id="download-and-install">Download and install</h2>
+<p>The latest release of <code>max65</code> can always be found on <a href="https://github.com/0xC0DE6502/max65-releases">GitHub</a>.</p>
+<p>Download the .zip file, extract it and optionally add <code>max65.exe</code> to your system path. The assembler is now ready for use.</p>
+<p>The assembler is compiled and tested on 64-bit Windows 11, but I successfully used <code>max65</code> with Wine on Linux (Ubuntu) as well. It is untested on macOS.</p>
+<h2 id="changelog">Changelog</h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.10</td>
+<td>Feb 15, 2023</td>
+<td>Initial release</td>
+</tr>
+</tbody>
+</table>
+<h2 id="disclaimer">Disclaimer</h2>
+<p>The author, 0xC0DE, of this software accepts no responsibility for damages resulting from the use of this product and makes no warranty or representation, either express or implied, including but not limited to, any implied warranty of merchantability or fitness for a particular purpose. This software is provided &quot;AS IS&quot;, and you, its user, assume all risks when using it.</p>
+<h2 id="contact">Contact</h2>
+<p>If you have any questions, suggestions or bug reports about <code>max65</code>, please contact me at <a href="mailto:0xC0DE6502@gmail.com">0xC0DE6502@gmail.com</a> or on Twitter <a href="https://twitter.com/0xC0DE6502">@0xC0DE6502</a>.</p>
+
+</body>
+</html>
