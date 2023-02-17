@@ -387,6 +387,7 @@ code {
 <a href="#features-beyond-beebasm">Features beyond BeebAsm</a><br>
 <a href="#quirks-and-tips">Quirks and tips</a><br>
 <a href="#download-and-install">Download and install</a><br>
+    <a href="#linux-and-macos">Linux and macOS</a><br>
 <a href="#changelog">Changelog</a><br>
 <a href="#disclaimer">Disclaimer</a><br>
 <a href="#contact">Contact</a></p>
@@ -431,7 +432,8 @@ code {
 </div></code></pre>
 <h2 id="overview">Overview</h2>
 <p><code>max65</code> is heavily inspired by BeebAsm and aims to improve and extend it. If you are familiar with BeebAsm and/or BBC BASIC, many assembler directives and built-in functions are instantly recognisable. For a quick start, see <a href="#comparing-with-beebasm">Comparing with BeebAsm</a> and <a href="#features-beyond-beebasm">Features beyond BeebAsm</a>.</p>
-<p><code>max65</code> is a two-pass assembler. In pass 1 source files are tokenised and tokens are parsed to internal commands. In pass 2 these internal commands are translated to machine code and data. A source file is a plain text file consisting of 65xx instructions, assembler directives, label definitions and symbol assignments. Each element may be put on a separate line. A single line may also contain multiple elements, separated by colons (<code>:</code>). A source file also usually contains whitespace and comments.</p>
+<p><code>max65</code> is a two-pass assembler. In pass 1 source files are tokenised and tokens are parsed to internal commands. In pass 2 these internal commands are translated to machine code and data. You can then save any part (or parts) of the 64Kb address space to your computer as raw binary file(s).</p>
+<p>A source file is a plain text file consisting of 65xx instructions, assembler directives, label definitions and symbol assignments. Each element may be put on a separate line. A single line may also contain multiple elements, separated by colons (<code>:</code>). A source file also usually contains whitespace and comments.</p>
 <p>This example shows all elements in a source file:</p>
 <pre class="hljs"><code><div>  org &amp;e00       ; assembler directive
 .start           ; label definition
@@ -449,7 +451,7 @@ code {
 <p>In some cases <code>max65</code> needs to make an educated guess in pass 1 about forward references, especially when the choice between zeropage and absolute addressing modes needs to be made. It is therefore recommended (but not required) to define zeropage labels as early as possible in your program.</p>
 <h2 id="command-line-options">Command-line options</h2>
 <p>Here is a brief summary of how to invoke <code>max65</code>:</p>
-<pre class="hljs"><code><div>max65 [-h] &lt;infile&gt;
+<pre class="hljs"><code><div>max65 [-h] [-l &lt;listfile&gt;] &lt;infile&gt;
 </div></code></pre>
 <table>
 <thead>
@@ -461,15 +463,19 @@ code {
 <tbody>
 <tr>
 <td><code>&lt;infile&gt;</code></td>
-<td>Input file (plain text source).</td>
+<td>Input file (plain text source)</td>
+</tr>
+<tr>
+<td><code>-l &lt;listfile&gt;</code></td>
+<td>Create a listing file</td>
 </tr>
 <tr>
 <td><code>-h</code></td>
-<td>Show a help message and exit.</td>
+<td>Show a help message and exit</td>
 </tr>
 </tbody>
 </table>
-<p>Example command-line: <code>max65 main.6502</code>.</p>
+<p>Example command-line: <code>max65 main.6502 -l main-listing.txt</code>.</p>
 <h2 id="error-and-warning-messages">Error and warning messages</h2>
 <p>When all goes well <code>max65</code> happily assembles the source file and exits with exit code 0 (success). However, when <code>max65</code> fails to assemble the source file, an error message is written to the standard error file (stderr) and the assembler exits with exit code 1 (failure). An error message shows the source filename, line number and cause of the error. Example of a typical error message: <code>*** error in pass 2: file main.6502, line 10: operator '/' doesn't work on strings</code>.</p>
 <p>In a few cases <code>max65</code> writes a warning message to stderr, but continues assembling your program. Example of a typical warning message: <code>*** warning in pass 2: file main.6502, line 6: instruction 'lda' can be assembled 1 byte shorter in zeropage addressing mode</code>.</p>
@@ -605,47 +611,47 @@ print N         ; 32
 <tr>
 <td><code>&lt;</code>, <code>&gt;</code></td>
 <td>Right</td>
-<td>Equal to <code>lo()</code> and <code>hi()</code> respectively, e.g. <code>lda #&lt;&amp;5800+n*320</code> is the same as <code>lda #lo(&amp;5800+n*320)</code>.</td>
+<td>Equal to <code>lo()</code> and <code>hi()</code> respectively, e.g. <code>lda #&lt;&amp;5800+n*320</code> is the same as <code>lda #lo(&amp;5800+n*320)</code></td>
 </tr>
 <tr>
 <td><code>or</code></td>
 <td>Left</td>
-<td>Logical OR, e.g. <code>if addr&gt;=&amp;5800 or addr&lt;&amp;3000</code> ...</td>
+<td>Logical OR, e.g. <code>if addr&gt;=&amp;5800 or addr&lt;&amp;3000 ... endif</code></td>
 </tr>
 <tr>
 <td><code>and</code></td>
 <td>Left</td>
-<td>Logical AND, e.g. <code>if N==3 and DEBUG</code> ...</td>
+<td>Logical AND, e.g. <code>if N==3 and DEBUG ... endif</code></td>
 </tr>
 <tr>
 <td><code>\|</code></td>
 <td>Left</td>
-<td>Bitwise OR, e.g. <code>lda #1\|2\|4\|&amp;80</code>.</td>
+<td>Bitwise OR, e.g. <code>lda #1\|2\|4\|&amp;80</code></td>
 </tr>
 <tr>
 <td><code>^</code></td>
 <td>Left</td>
-<td>Bitwise XOR (EOR), e.g. <code>ldx #n^255</code>.</td>
+<td>Bitwise XOR (EOR), e.g. <code>ldx #n^255</code></td>
 </tr>
 <tr>
 <td><code>&amp;</code></td>
 <td>Left</td>
-<td>Bitwise AND, e.g. <code>lda #N&amp;3</code>.</td>
+<td>Bitwise AND, e.g. <code>lda #N&amp;3</code></td>
 </tr>
 <tr>
 <td><code>==</code>, <code>=</code>, <code>!=</code>, <code>&lt;&gt;</code></td>
 <td>Left</td>
-<td>(In)equality, e.g. <code>assert N!=3 and DBG=2</code>.</td>
+<td>(In)equality, e.g. <code>assert N!=3 and DBG=2</code></td>
 </tr>
 <tr>
 <td><code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code></td>
 <td>Left</td>
-<td>Comparison, e.g. <code>if addr&gt;=&amp;5800 or addr&lt;&amp;3000</code> ...</td>
+<td>Comparison, e.g. <code>if addr&gt;=&amp;5800 or addr&lt;&amp;3000 ... endif</code></td>
 </tr>
 <tr>
 <td><code>+</code>, <code>-</code></td>
 <td>Left</td>
-<td>Addition and subtraction, e.g. <code>equw 4*WIDTH-(N+8)</code>, <code>print &quot;S=&quot;+lower$(S)</code>.</td>
+<td>Addition and subtraction, e.g. <code>equw 4*WIDTH-(N+8)</code>, <code>print &quot;S=&quot;+lower$(S)</code></td>
 </tr>
 <tr>
 <td><code>*</code>, <code>/</code>, <code>div</code>, <code>mod</code></td>
@@ -655,12 +661,12 @@ print N         ; 32
 <tr>
 <td><code>&lt;&lt;</code>, <code>&gt;&gt;</code></td>
 <td>Left</td>
-<td>Bit and string shift, e.g. <code>lda #1&lt;&lt;5-1</code>, <code>equs &quot;Hello world&quot;&gt;&gt;6</code>.</td>
+<td>Bit and string shift, e.g. <code>lda #1&lt;&lt;5-1</code>, <code>equs &quot;Hello world&quot;&gt;&gt;6</code></td>
 </tr>
 <tr>
 <td><code>not</code>, <code>~</code>, <code>-</code></td>
 <td>Right</td>
-<td>Logical NOT, bitwise NOT and unary minus, e.g. <code>if not defined(&quot;N&quot;) ...</code>, <code>lda #Q&amp;~3</code>.</td>
+<td>Logical NOT, bitwise NOT and unary minus, e.g. <code>if not defined(&quot;N&quot;) ... endif</code>, <code>lda #Q&amp;~3</code></td>
 </tr>
 </tbody>
 </table>
@@ -676,51 +682,51 @@ print N         ; 32
 <tbody>
 <tr>
 <td><code>lo()</code></td>
-<td>Least significant byte (lower 8 bits), e.g. <code>adc #lo(SCRN)</code>.</td>
+<td>Least significant byte (lower 8 bits), e.g. <code>adc #lo(SCRN)</code></td>
 </tr>
 <tr>
 <td><code>hi()</code></td>
-<td>Most significant byte (upper 8 bits). Technically bits 15..8. E.g. <code>equb hi(SCRN+3*&amp;140)</code>.</td>
+<td>Most significant byte (upper 8 bits). Technically bits 15..8. E.g. <code>equb hi(SCRN+3*&amp;140)</code></td>
 </tr>
 <tr>
 <td><code>sin()</code></td>
-<td>Sine of an angle in radians, e.g. <code>equw 512*sin(t)</code>.</td>
+<td>Sine of an angle in radians, e.g. <code>equw 512*sin(t)</code></td>
 </tr>
 <tr>
 <td><code>cos()</code></td>
-<td>Cosine of an angle in radians, e.g. <code>N=1024*cos(PI/4)</code>.</td>
+<td>Cosine of an angle in radians, e.g. <code>N=1024*cos(PI/4)</code></td>
 </tr>
 <tr>
 <td><code>tan()</code></td>
-<td>Tangent of an angle in radians, e.g. <code>equd 32*tan(2*t)</code>.</td>
+<td>Tangent of an angle in radians, e.g. <code>equd 32*tan(2*t)</code></td>
 </tr>
 <tr>
 <td><code>asn()</code></td>
-<td>Arc sine (only defined for domain [-1, 1]), e.g. <code>n=asn(-0.5)</code>.</td>
+<td>Arc sine (only defined for domain [-1, 1]), e.g. <code>n=asn(-0.5)</code></td>
 </tr>
 <tr>
 <td><code>acs()</code></td>
-<td>Arc cosine (only defined for domain [-1, 1]), e.g. <code>n=acs(0.3*x)</code>.</td>
+<td>Arc cosine (only defined for domain [-1, 1]), e.g. <code>n=acs(0.3*x)</code></td>
 </tr>
 <tr>
 <td><code>atn()</code></td>
-<td>Arc tangent, e.g. <code>T=atn(100)</code>.</td>
+<td>Arc tangent, e.g. <code>T=atn(100)</code></td>
 </tr>
 <tr>
 <td><code>deg()</code></td>
-<td>Convert radians to degrees, e.g. <code>d=deg(PI/8)</code>.</td>
+<td>Convert radians to degrees, e.g. <code>d=deg(PI/8)</code></td>
 </tr>
 <tr>
 <td><code>rad()</code></td>
-<td>Convert degrees to radians, e.g. <code>r=rad(180)</code>.</td>
+<td>Convert degrees to radians, e.g. <code>r=rad(180)</code></td>
 </tr>
 <tr>
 <td><code>int()</code></td>
-<td>Truncate float to integer, e.g. <code>lda #int(3.14)</code>.</td>
+<td>Truncate float to integer, e.g. <code>lda #int(3.14)</code></td>
 </tr>
 <tr>
 <td><code>abs()</code></td>
-<td>Absolute value, e.g. <code>m=abs(sin(t))</code>.</td>
+<td>Absolute value, e.g. <code>m=abs(sin(t))</code></td>
 </tr>
 <tr>
 <td><code>sqr()</code></td>
@@ -728,35 +734,35 @@ print N         ; 32
 </tr>
 <tr>
 <td><code>sgn()</code></td>
-<td>Sign of its argument: -1 for negative values, 0 for zero, 1 for positive values. E.g. <code>p=x+16*sgn(n)</code>.</td>
+<td>Sign of its argument: -1 for negative values, 0 for zero, 1 for positive values. E.g. <code>p=x+16*sgn(n)</code></td>
 </tr>
 <tr>
 <td><code>log()</code></td>
-<td>Logarithm (base 10, only defined for values &gt;0), e.g. <code>equb log(1000)</code>.</td>
+<td>Logarithm (base 10, only defined for values &gt;0), e.g. <code>equb log(1000)</code></td>
 </tr>
 <tr>
 <td><code>ln()</code></td>
-<td>Logarithm (base <em>e</em>, only defined for values &gt;0), e.g. <code>equb ln(x/3)</code>.</td>
+<td>Natural logarithm (base <em>e</em>, only defined for values &gt;0), e.g. <code>equb ln(x/3)</code></td>
 </tr>
 <tr>
 <td><code>exp()</code></td>
-<td><em>e</em> raised to the power of the argument, e.g. <code>e=exp(1)</code>.</td>
+<td><em>e</em> raised to the power of the argument, e.g. <code>e=exp(1)</code></td>
 </tr>
 <tr>
 <td><code>rnd()</code></td>
-<td>Random number. Only defined for integer values &gt;0. <code>rnd(1)</code> returns a float in the range [0, 1]. <code>rnd(n)</code> with integer <code>n</code>&gt;1 returns an integer in the range [1, <code>n</code>]. You can seed the random number generator with the <code>randomize</code> directive.</td>
+<td>Random number. Only defined for integer values &gt;0. <code>rnd(1)</code> returns a float in the range [0, 1]. <code>rnd(n)</code> with integer <code>n</code>&gt;1 returns an integer in the range [1, <code>n</code>]. You can seed the random number generator with the <code>randomize</code> directive</td>
 </tr>
 <tr>
 <td><code>val()</code></td>
-<td>String to number. Checks if a string starts with a valid integer or float and returns that (or 0 if no number was found). E.g. <code>P=val(&quot;-3.14PI!&quot;)</code>.</td>
+<td>String to number. Checks if a string starts with a valid integer or float and returns that (or 0 if no number was found). E.g. <code>P=val(&quot;-3.14PI!&quot;)</code></td>
 </tr>
 <tr>
 <td><code>len()</code></td>
-<td>Length of a string, e.g. <code>print len(&quot;Hello!&quot;)</code>.</td>
+<td>Length of a string, e.g. <code>print len(&quot;Hello!&quot;)</code></td>
 </tr>
 <tr>
 <td><code>asc()</code></td>
-<td>ASCII value of first character of a string (or -1 for an empty string), e.g. <code>val=asc(&quot;Hello!&quot;)</code>.</td>
+<td>ASCII value of first character of a string (or -1 for an empty string), e.g. <code>val=asc(&quot;Hello!&quot;)</code></td>
 </tr>
 <tr>
 <td><code>str$()</code></td>
@@ -764,11 +770,11 @@ print N         ; 32
 </tr>
 <tr>
 <td><code>str$~()</code></td>
-<td>Convert number to a string with the number in hexadecimal format, e.g. <code>print &quot;$&quot;, str$~(128)</code>. Note: negative numbers are not printed in two's complement, so for example <code>str$~(-140)</code> translates to the string <code>&quot;-8C&quot;</code>, not <code>&quot;FFFFFF74&quot;</code> (which assumes 32-bit).</td>
+<td>Convert number to a string with the number in hexadecimal format, e.g. <code>print &quot;$&quot;, str$~(128)</code>. Note: negative numbers are not printed in two's complement, so for example <code>str$~(-140)</code> translates to the string <code>&quot;-8C&quot;</code>, not <code>&quot;FFFFFF74&quot;</code> (which assumes 32-bit)</td>
 </tr>
 <tr>
 <td><code>chr$()</code></td>
-<td>Convert an ASCII value to a string of length 1 containing that ASCII character. Only valid for domain [32, 126]. E.g. <code>S=chr$(122)</code>.</td>
+<td>Convert an ASCII value to a string of length 1 containing that ASCII character. Only valid for domain [32, 126]. E.g. <code>S=chr$(122)</code></td>
 </tr>
 <tr>
 <td><code>lower$()</code></td>
@@ -780,11 +786,11 @@ print N         ; 32
 </tr>
 <tr>
 <td><code>time$()</code></td>
-<td>Date and time of assembly (string). The argument is a string that determines the date/time format as specified by the Python (or C) function <code>strftime()</code>.  <code>time$(&quot;&quot;)</code> returns date/time formatted as <code>&quot;%a,%d %b %Y.%H:%M:%S&quot;</code>, e.g. <code>&quot;Mon,16 Jan 2023.17:46:03&quot;</code>.</td>
+<td>Date and time of assembly (string). The argument is a string that determines the date/time format as specified by the Python (or C) function <code>strftime()</code>.  <code>time$(&quot;&quot;)</code> returns date/time formatted as <code>&quot;%a,%d %b %Y.%H:%M:%S&quot;</code>, e.g. <code>&quot;Mon,16 Jan 2023.17:46:03&quot;</code></td>
 </tr>
 <tr>
 <td><code>defined()</code></td>
-<td>Check if symbol is defined (returns <code>TRUE</code>) or not (returns <code>FALSE</code>), e.g. <code>if not defined(&quot;SCRN&quot;)</code> ...</td>
+<td>Check if symbol is defined (returns <code>TRUE</code>) or not (returns <code>FALSE</code>), e.g. <code>if not defined(&quot;SCRN&quot;) ... endif</code></td>
 </tr>
 </tbody>
 </table>
@@ -803,63 +809,63 @@ print N         ; 32
 <tbody>
 <tr>
 <td><strong><code>align</code></strong> <em><code>expr</code></em></td>
-<td>Increment PC to next multiple of <em><code>expr</code></em>, e.g. <code>align 256</code> aligns PC to the next memory page.</td>
+<td>Increment PC to next multiple of <em><code>expr</code></em>, e.g. <code>align 256</code> aligns PC to the next memory page</td>
 </tr>
 <tr>
 <td><strong><code>elif</code></strong> <em><code>expr</code></em></td>
-<td>Mark the start of an <code>elif</code>-block in an <code>if...endif</code>. See <code>if</code>.</td>
+<td>Mark the start of an <code>elif</code>-block in an <code>if...endif</code>. See <code>if</code></td>
 </tr>
 <tr>
 <td><strong><code>else</code></strong></td>
-<td>Mark the start of an <code>else</code>-block in an <code>if...endif</code>. See <code>if</code>.</td>
+<td>Mark the start of an <code>else</code>-block in an <code>if...endif</code>. See <code>if</code></td>
 </tr>
 <tr>
 <td><strong><code>endif</code></strong></td>
-<td>Mark the end of an <code>if...endif</code> block. See <code>if</code>.</td>
+<td>Mark the end of an <code>if...endif</code> block. See <code>if</code></td>
 </tr>
 <tr>
 <td><strong><code>endmacro</code></strong></td>
-<td>Mark the end of a macro definition. See <code>macro</code>.</td>
+<td>Mark the end of a macro definition. See <code>macro</code></td>
 </tr>
 <tr>
 <td><strong><code>equb</code></strong> <em><code>expr_1 [, expr_2, ..., expr_n]</code></em></td>
-<td>Insert one or more bytes and/or strings, e.g. <code>equb &quot;Hello!&quot;, 13, 10, 0</code>. For numeric arguments forward references are allowed.</td>
+<td>Insert one or more bytes and/or strings, e.g. <code>equb &quot;Hello!&quot;, 13, 10, 0</code>. For numeric arguments forward references are allowed</td>
 </tr>
 <tr>
 <td><strong><code>equs</code></strong></td>
-<td>Equivalent to <code>equb</code>.</td>
+<td>Equivalent to <code>equb</code></td>
 </tr>
 <tr>
 <td><strong><code>for</code></strong> <em><code>sym</code></em><code>,</code> <em><code>expr_1</code></em><code>,</code> <em><code>expr_2 [, expr_3] ...</code></em> <strong><code>next</code></strong></td>
-<td>Assemble a block of code/data one or more times. The loop counter <em><code>sym</code></em> is a local symbol which changes from <em><code>expr_1</code></em> to <em><code>expr_2</code></em> (inclusive) in steps of <em><code>expr_3</code></em> (-1 or 1 if unspecified). Examples: <code>for n, 0, 9: equb n: next</code>. Or: <code>for f, 3.5, -1.5, -0.75: print f: next</code>.</td>
+<td>Assemble a block of code/data one or more times. The loop counter <em><code>sym</code></em> is a local symbol which changes from <em><code>expr_1</code></em> to <em><code>expr_2</code></em> (inclusive) in steps of <em><code>expr_3</code></em> (-1 or 1 if unspecified). Examples: <code>for n, 0, 9: equb n: next</code>. Or: <code>for f, 3.5, -1.5, -0.75: print f: next</code></td>
 </tr>
 <tr>
 <td><strong><code>if</code></strong> <em><code>expr_1 ... [</code></em><strong><code>elif</code></strong> <em><code>expr_2 ...] ... [</code></em><strong><code>elif</code></strong> <em><code>expr_n ...] [</code></em><strong><code>else</code></strong> <em><code>...]</code></em> <strong><code>endif</code></strong></td>
-<td>Conditional assembly. Assemble the code/data block for which the corresponding <code>if</code>-condition or the first <code>elif</code>-condition (in order of appearance) evaluates to a non-zero number (<code>TRUE</code>). When none exists, assemble the <code>else</code>-block (if any). Examples: <code>if n&gt;3: print n: endif</code>. Or: <code>if n&gt;3: print n: elif n&lt;-3: print -n: else: print &quot;Invalid&quot;: endif</code>.</td>
+<td>Conditional assembly. Assemble the code/data block for which the corresponding <code>if</code>-condition or the first <code>elif</code>-condition (in order of appearance) evaluates to a non-zero number (<code>TRUE</code>). When none exists, assemble the <code>else</code>-block (if any). Examples: <code>if n&gt;3: print n: endif</code>. Or: <code>if n&gt;3: print n: elif n&lt;-3: print -n: else: print &quot;Invalid&quot;: endif</code></td>
 </tr>
 <tr>
 <td><strong><code>incbin</code></strong> <em><code>expr</code></em></td>
-<td>Insert binary file named <em><code>expr</code></em>, e.g. <code>incbin &quot;data/table.bin&quot;</code>. <em><code>expr</code></em> is a string that contains a valid path to an existing file.</td>
+<td>Insert binary file named <em><code>expr</code></em>, e.g. <code>incbin &quot;data/table.bin&quot;</code>. <em><code>expr</code></em> is a string that contains a valid path to an existing file</td>
 </tr>
 <tr>
 <td><strong><code>include</code></strong> <em><code>expr</code></em></td>
-<td>Assemble and insert source file named <em><code>expr</code></em>, e.g. <code>include &quot;src/spriteplot.asm&quot;</code>. <em><code>expr</code></em> is a string that contains a valid path to an existing file.</td>
+<td>Assemble and insert source file named <em><code>expr</code></em>, e.g. <code>include &quot;src/spriteplot.asm&quot;</code>. <em><code>expr</code></em> is a string that contains a valid path to an existing file</td>
 </tr>
 <tr>
 <td><strong><code>macro</code></strong> <em><code>sym_1 [, sym_2, ..., sym_n] ...</code></em> <strong><code>endmacro</code></strong></td>
-<td>Define a macro named <em><code>sym_1</code></em> with optional parameters named <em><code>sym_2</code></em>, ..., <em><code>sym_n</code></em>. See also: <a href="#macros">Macros</a>.</td>
+<td>Define a macro named <em><code>sym_1</code></em> with optional parameters named <em><code>sym_2</code></em>, ..., <em><code>sym_n</code></em>. See also: <a href="#macros">Macros</a></td>
 </tr>
 <tr>
 <td><strong><code>next</code></strong></td>
-<td>Mark the end of a <code>for...next</code> loop. See <code>for</code>.</td>
+<td>Mark the end of a <code>for...next</code> loop. See <code>for</code></td>
 </tr>
 <tr>
 <td><strong><code>org</code></strong> <em><code>expr_1 [, expr_2]</code></em></td>
-<td>Set PC (where code/data is assembled) to <em><code>expr_1</code></em>. Also set the logical PC (on which labels are based) to <em><code>expr_2</code></em>. If <em><code>expr_2</code></em> is not specified, the logical PC will be equal to PC. Examples: <code>org $1000</code>. Or: <code>org $1000, $2000</code>.</td>
+<td>Set PC (where code/data is assembled) to <em><code>expr_1</code></em>. Also set the logical PC (on which labels are based) to <em><code>expr_2</code></em>. If <em><code>expr_2</code></em> is not specified, the logical PC will be equal to PC. Examples: <code>org $1000</code>. Or: <code>org $1000, $2000</code></td>
 </tr>
 <tr>
 <td><strong><code>skip</code></strong> <em><code>expr</code></em></td>
-<td>Increment PC by <em><code>expr</code></em> bytes, e.g. <code>skip 16</code>.</td>
+<td>Increment PC by <em><code>expr</code></em> bytes, e.g. <code>skip 16</code></td>
 </tr>
 </tbody>
 </table>
@@ -874,35 +880,35 @@ print N         ; 32
 <tbody>
 <tr>
 <td><strong><code>assert</code></strong> <em><code>expr_1 [, expr_2, ..., expr_n]</code></em></td>
-<td>Evaluate one or more arguments and trigger an error for the first expression (in order of appearance) that is zero (<code>FALSE</code>). Example: <code>assert N&lt;128, P%&lt;$1000</code>.</td>
+<td>Evaluate one or more arguments and trigger an error for the first expression (in order of appearance) that is zero (<code>FALSE</code>). Example: <code>assert N&lt;128, P%&lt;$1000</code></td>
 </tr>
 <tr>
 <td><strong><code>error</code></strong> <em><code>[expr_1, ..., expr_n]</code></em></td>
-<td>Trigger an error after printing <em><code>expr_1</code></em>, ..., <em><code>expr_n</code></em> to the standard error file (stderr). Example: <code>if N&gt;=128: error &quot;Expected N&lt;128, but N=&quot;, N: endif</code>.</td>
+<td>Trigger an error after printing <em><code>expr_1</code></em>, ..., <em><code>expr_n</code></em> to the standard error file (stderr). Example: <code>if N&gt;=128: error &quot;Expected N&lt;128, but N=&quot;, N: endif</code></td>
 </tr>
 <tr>
 <td><strong><code>equd</code></strong> <em><code>expr_1 [, expr_2, ..., expr_n]</code></em></td>
-<td>Insert one or more double words (32-bit integers), e.g. <code>equd $C0DE6502</code>.</td>
+<td>Insert one or more double words (32-bit integers), e.g. <code>equd $C0DE6502</code></td>
 </tr>
 <tr>
 <td><strong><code>equw</code></strong> <em><code>expr_1 [, expr_2, ..., expr_n]</code></em></td>
-<td>Insert one or more words (16-bit integers), e.g. <code>equw $C0DE</code>.</td>
+<td>Insert one or more words (16-bit integers), e.g. <code>equw $C0DE</code></td>
 </tr>
 <tr>
 <td><strong><code>guard</code></strong> <em><code>[expr_1, ..., expr_n]</code></em></td>
-<td>Set multiple guards at addresses <em><code>expr_1</code></em>, ..., <em><code>epxr_n</code></em>. An address guard triggers an error when code/data is assembled at that address. When no arguments are given, clear all current guards. Example: <code>guard $5800, $8000</code>.</td>
+<td>Set multiple guards at addresses <em><code>expr_1</code></em>, ..., <em><code>epxr_n</code></em>. An address guard triggers an error when code/data is assembled at that address. When no arguments are given, clear all current guards. Example: <code>guard $5800, $8000</code></td>
 </tr>
 <tr>
 <td><strong><code>print</code></strong> <em><code>[expr_1, ..., expr_n]</code></em></td>
-<td>Print zero or more expressions <em><code>expr_1</code></em>, ..., <em><code>expr_n</code></em> to the standard output file (stdout) and finish with a newline. When no arguments are given, just print a newline.</td>
+<td>Print zero or more expressions <em><code>expr_1</code></em>, ..., <em><code>expr_n</code></em> to the standard output file (stdout) and finish with a newline. When no arguments are given, just print a newline</td>
 </tr>
 <tr>
 <td><strong><code>randomize</code></strong> <em><code>expr</code></em></td>
-<td>Seed the random number generator with <em><code>expr</code></em>, e.g. <code>randomize 12345</code>. <em><code>expr</code></em> can be any integer, float or string.</td>
+<td>Seed the random number generator with <em><code>expr</code></em>, e.g. <code>randomize 12345</code>. <em><code>expr</code></em> can be any integer, float or string</td>
 </tr>
 <tr>
 <td><strong><code>save</code></strong> <em><code>expr_1, expr_2, expr_3 [, expr_4 [, expr_5]]</code></em></td>
-<td>Save a code/data block from the 64Kb address space to a binary file named <em><code>expr_1</code></em>. The block starts at <em><code>expr_2</code></em> and ends at <em><code>expr_3</code></em> (exclusive). The optional execution address <em><code>expr_4</code></em> and load address <em><code>expr_5</code></em> are used in the accompanying .inf file. When not specified, these are equal to <em><code>expr_2</code></em>. Example: <code>save &quot;CODE&quot;, $1000, $2000, $f25, $e00</code>.</td>
+<td>Save a code/data block from the 64Kb address space to a raw binary file named <em><code>expr_1</code></em>. The block starts at <em><code>expr_2</code></em> and ends at <em><code>expr_3</code></em> (exclusive). The optional execution address <em><code>expr_4</code></em> and load address <em><code>expr_5</code></em> are used in the accompanying .inf file. When not specified, these are equal to <em><code>expr_2</code></em>. Example: <code>save &quot;CODE&quot;, $1000, $2000, $f25, $e00</code></td>
 </tr>
 </tbody>
 </table>
@@ -1161,7 +1167,9 @@ add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
 <h2 id="download-and-install">Download and install</h2>
 <p>The latest release of <code>max65</code> can always be found on <a href="https://github.com/0xC0DE6502/max65-releases">GitHub</a>.</p>
 <p>Download the .zip file, extract it and optionally add <code>max65.exe</code> to your system path. The assembler is now ready for use.</p>
-<p>The assembler is compiled and tested on 64-bit Windows 11, but I successfully used <code>max65</code> with Wine on Linux (Ubuntu) as well. It is untested on macOS.</p>
+<p>The assembler is compiled and tested on 64-bit Windows 11. It is fully portable as long as you keep <code>max65.exe</code> together with the accompanying <code>python*.dll</code> and <code>python*.zip</code> files.</p>
+<h3 id="linux-and-macos">Linux and macOS</h3>
+<p><code>max65</code> is known to work on Ubuntu 20.04.5 with Wine 5.0-3 and on Ubuntu 22.04.1 with Wine 6.0.3. I am confident that other combinations of Linux and Wine will work equally well. This particular construction is untested on macOS.</p>
 <h2 id="changelog">Changelog</h2>
 <table>
 <thead>
@@ -1172,6 +1180,11 @@ add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>0.11</td>
+<td>Feb 17, 2023</td>
+<td>Create optional listing file (-l)</td>
+</tr>
 <tr>
 <td>0.10</td>
 <td>Feb 15, 2023</td>

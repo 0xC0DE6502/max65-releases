@@ -26,6 +26,7 @@ The entire `max65` package is Copyright &#169; 2022-2023 [0xC0DE](https://twitte
 [Features beyond BeebAsm](#features-beyond-beebasm)  
 [Quirks and tips](#quirks-and-tips)  
 [Download and install](#download-and-install)  
+&nbsp;&nbsp;&nbsp;&nbsp;[Linux and macOS](#linux-and-macos)  
 [Changelog](#changelog)  
 [Disclaimer](#disclaimer)  
 [Contact](#contact)  
@@ -77,7 +78,9 @@ Let's dive right in with a short but real program to demonstrate some of the fea
 
 `max65` is heavily inspired by BeebAsm and aims to improve and extend it. If you are familiar with BeebAsm and/or BBC BASIC, many assembler directives and built-in functions are instantly recognisable. For a quick start, see [Comparing with BeebAsm](#comparing-with-beebasm) and [Features beyond BeebAsm](#features-beyond-beebasm).
 
-`max65` is a two-pass assembler. In pass 1 source files are tokenised and tokens are parsed to internal commands. In pass 2 these internal commands are translated to machine code and data. A source file is a plain text file consisting of 65xx instructions, assembler directives, label definitions and symbol assignments. Each element may be put on a separate line. A single line may also contain multiple elements, separated by colons (`:`). A source file also usually contains whitespace and comments.
+`max65` is a two-pass assembler. In pass 1 source files are tokenised and tokens are parsed to internal commands. In pass 2 these internal commands are translated to machine code and data. You can then save any part (or parts) of the 64Kb address space to your computer as raw binary file(s). 
+
+A source file is a plain text file consisting of 65xx instructions, assembler directives, label definitions and symbol assignments. Each element may be put on a separate line. A single line may also contain multiple elements, separated by colons (`:`). A source file also usually contains whitespace and comments.
 
 This example shows all elements in a source file:
 ```
@@ -103,15 +106,16 @@ In some cases `max65` needs to make an educated guess in pass 1 about forward re
 
 Here is a brief summary of how to invoke `max65`:
 ```
-max65 [-h] <infile>
+max65 [-h] [-l <listfile>] <infile>
 ```
 
 | Option | Description |
 |-|-|
-| `<infile>` | Input file (plain text source). |
-| `-h` | Show a help message and exit. |
+| `<infile>` | Input file (plain text source) |
+| `-l <listfile>` | Create a listing file |
+| `-h` | Show a help message and exit |
 
-Example command-line: `max65 main.6502`.
+Example command-line: `max65 main.6502 -l main-listing.txt`.
 
 ## Error and warning messages
 
@@ -213,18 +217,18 @@ Operators in order of increasing precedence:
 
 | Operator | Associativity | Description |
 |-|-|-|
-| `<`, `>` | Right | Equal to `lo()` and `hi()` respectively, e.g. `lda #<&5800+n*320` is the same as `lda #lo(&5800+n*320)`. |
-| `or` | Left | Logical OR, e.g. `if addr>=&5800 or addr<&3000` ... |
-| `and` | Left | Logical AND, e.g. `if N==3 and DEBUG` ... |
-| `\|` | Left | Bitwise OR, e.g. `lda #1\|2\|4\|&80`. |
-| `^` | Left | Bitwise XOR (EOR), e.g. `ldx #n^255`. |
-| `&` | Left | Bitwise AND, e.g. `lda #N&3`. |
-| `==`, `=`, `!=`, `<>` | Left | (In)equality, e.g. `assert N!=3 and DBG=2`. |
-| `<`, `<=`, `>`, `>=` | Left | Comparison, e.g. `if addr>=&5800 or addr<&3000` ... |
-| `+`, `-` | Left | Addition and subtraction, e.g. `equw 4*WIDTH-(N+8)`, `print "S="+lower$(S)`. |
+| `<`, `>` | Right | Equal to `lo()` and `hi()` respectively, e.g. `lda #<&5800+n*320` is the same as `lda #lo(&5800+n*320)` |
+| `or` | Left | Logical OR, e.g. `if addr>=&5800 or addr<&3000 ... endif` |
+| `and` | Left | Logical AND, e.g. `if N==3 and DEBUG ... endif` |
+| `\|` | Left | Bitwise OR, e.g. `lda #1\|2\|4\|&80` |
+| `^` | Left | Bitwise XOR (EOR), e.g. `ldx #n^255` |
+| `&` | Left | Bitwise AND, e.g. `lda #N&3` |
+| `==`, `=`, `!=`, `<>` | Left | (In)equality, e.g. `assert N!=3 and DBG=2` |
+| `<`, `<=`, `>`, `>=` | Left | Comparison, e.g. `if addr>=&5800 or addr<&3000 ... endif` |
+| `+`, `-` | Left | Addition and subtraction, e.g. `equw 4*WIDTH-(N+8)`, `print "S="+lower$(S)` |
 | `*`, `/`, `div`, `mod` | Left | Multiplication and division, e.g. `equb 8*(y div 8)`, `S=3*"ABC"` |
-| `<<`, `>>` | Left | Bit and string shift, e.g. `lda #1<<5-1`, `equs "Hello world">>6`. |
-| `not`, `~`, `-` | Right | Logical NOT, bitwise NOT and unary minus, e.g. `if not defined("N") ...`, `lda #Q&~3`. |
+| `<<`, `>>` | Left | Bit and string shift, e.g. `lda #1<<5-1`, `equs "Hello world">>6` |
+| `not`, `~`, `-` | Right | Logical NOT, bitwise NOT and unary minus, e.g. `if not defined("N") ... endif`, `lda #Q&~3` |
 
 ### Built-in functions
 
@@ -232,34 +236,34 @@ Built-in functions and expressions in parentheses (or, alternatively, in square 
 
 | Function | Description |
 |-|-|
-| `lo()` | Least significant byte (lower 8 bits), e.g. `adc #lo(SCRN)`. |
-| `hi()` | Most significant byte (upper 8 bits). Technically bits 15..8. E.g. `equb hi(SCRN+3*&140)`. |
-| `sin()` | Sine of an angle in radians, e.g. `equw 512*sin(t)`. |
-| `cos()` | Cosine of an angle in radians, e.g. `N=1024*cos(PI/4)`. |
-| `tan()` | Tangent of an angle in radians, e.g. `equd 32*tan(2*t)`. |
-| `asn()` | Arc sine (only defined for domain [-1, 1]), e.g. `n=asn(-0.5)`. |
-| `acs()` | Arc cosine (only defined for domain [-1, 1]), e.g. `n=acs(0.3*x)`. |
-| `atn()` | Arc tangent, e.g. `T=atn(100)`. |
-| `deg()` | Convert radians to degrees, e.g. `d=deg(PI/8)`. |
-| `rad()` | Convert degrees to radians, e.g. `r=rad(180)`. |
-| `int()` | Truncate float to integer, e.g. `lda #int(3.14)`. |
-| `abs()` | Absolute value, e.g. `m=abs(sin(t))`. |
+| `lo()` | Least significant byte (lower 8 bits), e.g. `adc #lo(SCRN)` |
+| `hi()` | Most significant byte (upper 8 bits). Technically bits 15..8. E.g. `equb hi(SCRN+3*&140)` |
+| `sin()` | Sine of an angle in radians, e.g. `equw 512*sin(t)` |
+| `cos()` | Cosine of an angle in radians, e.g. `N=1024*cos(PI/4)` |
+| `tan()` | Tangent of an angle in radians, e.g. `equd 32*tan(2*t)` |
+| `asn()` | Arc sine (only defined for domain [-1, 1]), e.g. `n=asn(-0.5)` |
+| `acs()` | Arc cosine (only defined for domain [-1, 1]), e.g. `n=acs(0.3*x)` |
+| `atn()` | Arc tangent, e.g. `T=atn(100)` |
+| `deg()` | Convert radians to degrees, e.g. `d=deg(PI/8)` |
+| `rad()` | Convert degrees to radians, e.g. `r=rad(180)` |
+| `int()` | Truncate float to integer, e.g. `lda #int(3.14)` |
+| `abs()` | Absolute value, e.g. `m=abs(sin(t))` |
 | `sqr()` | Square root (only defined for values >=0), e.g. `rt=sqr(36)` |
-| `sgn()` | Sign of its argument: -1 for negative values, 0 for zero, 1 for positive values. E.g. `p=x+16*sgn(n)`. |
-| `log()` | Logarithm (base 10, only defined for values >0), e.g. `equb log(1000)`. |
-| `ln()` | Logarithm (base _e_, only defined for values >0), e.g. `equb ln(x/3)`. |
-| `exp()` | _e_ raised to the power of the argument, e.g. `e=exp(1)`. |
-| `rnd()` | Random number. Only defined for integer values >0. `rnd(1)` returns a float in the range [0, 1]. `rnd(n)` with integer `n`>1 returns an integer in the range [1, `n`]. You can seed the random number generator with the `randomize` directive. |
-| `val()` | String to number. Checks if a string starts with a valid integer or float and returns that (or 0 if no number was found). E.g. `P=val("-3.14PI!")`. |
-| `len()` | Length of a string, e.g. `print len("Hello!")`. |
-| `asc()` | ASCII value of first character of a string (or -1 for an empty string), e.g. `val=asc("Hello!")`. |
+| `sgn()` | Sign of its argument: -1 for negative values, 0 for zero, 1 for positive values. E.g. `p=x+16*sgn(n)` |
+| `log()` | Logarithm (base 10, only defined for values >0), e.g. `equb log(1000)` |
+| `ln()` | Natural logarithm (base _e_, only defined for values >0), e.g. `equb ln(x/3)` |
+| `exp()` | _e_ raised to the power of the argument, e.g. `e=exp(1)` |
+| `rnd()` | Random number. Only defined for integer values >0. `rnd(1)` returns a float in the range [0, 1]. `rnd(n)` with integer `n`>1 returns an integer in the range [1, `n`]. You can seed the random number generator with the `randomize` directive |
+| `val()` | String to number. Checks if a string starts with a valid integer or float and returns that (or 0 if no number was found). E.g. `P=val("-3.14PI!")` |
+| `len()` | Length of a string, e.g. `print len("Hello!")` |
+| `asc()` | ASCII value of first character of a string (or -1 for an empty string), e.g. `val=asc("Hello!")` |
 | `str$()` | Convert number to a string, e.g. `S=str$(123.4)>>1` |
-| `str$~()` | Convert number to a string with the number in hexadecimal format, e.g. `print "$", str$~(128)`. Note: negative numbers are not printed in two's complement, so for example `str$~(-140)` translates to the string `"-8C"`, not `"FFFFFF74"` (which assumes 32-bit). |
-| `chr$()` | Convert an ASCII value to a string of length 1 containing that ASCII character. Only valid for domain [32, 126]. E.g. `S=chr$(122)`. |
+| `str$~()` | Convert number to a string with the number in hexadecimal format, e.g. `print "$", str$~(128)`. Note: negative numbers are not printed in two's complement, so for example `str$~(-140)` translates to the string `"-8C"`, not `"FFFFFF74"` (which assumes 32-bit) |
+| `chr$()` | Convert an ASCII value to a string of length 1 containing that ASCII character. Only valid for domain [32, 126]. E.g. `S=chr$(122)` |
 | `lower$()` | Convert a string to lowercase, e.g. `S=lower$("ABC123")` |
 | `upper$()` | Convert a string to uppercase, e.g. `S=upper$("abc123")` |
-| `time$()` | Date and time of assembly (string). The argument is a string that determines the date/time format as specified by the Python (or C) function `strftime()`.  `time$("")` returns date/time formatted as `"%a,%d %b %Y.%H:%M:%S"`, e.g. `"Mon,16 Jan 2023.17:46:03"`. |
-| `defined()` | Check if symbol is defined (returns `TRUE`) or not (returns `FALSE`), e.g. `if not defined("SCRN")` ... |
+| `time$()` | Date and time of assembly (string). The argument is a string that determines the date/time format as specified by the Python (or C) function `strftime()`.  `time$("")` returns date/time formatted as `"%a,%d %b %Y.%H:%M:%S"`, e.g. `"Mon,16 Jan 2023.17:46:03"` |
+| `defined()` | Check if symbol is defined (returns `TRUE`) or not (returns `FALSE`), e.g. `if not defined("SCRN") ... endif` |
 
 ## Assembler directives
 
@@ -273,34 +277,34 @@ Directives that evaluate their arguments in pass 1:
 
 | Directive | Description |
 |-|-|
-| **`align`** _`expr`_ | Increment PC to next multiple of _`expr`_, e.g. `align 256` aligns PC to the next memory page. |
-| **`elif`** _`expr`_ | Mark the start of an `elif`-block in an `if...endif`. See `if`. |
-| **`else`** | Mark the start of an `else`-block in an `if...endif`. See `if`. |
-| **`endif`** | Mark the end of an `if...endif` block. See `if`. |
-| **`endmacro`** | Mark the end of a macro definition. See `macro`. |
-| **`equb`** _`expr_1 [, expr_2, ..., expr_n]`_ | Insert one or more bytes and/or strings, e.g. `equb "Hello!", 13, 10, 0`. For numeric arguments forward references are allowed. |
-| **`equs`** | Equivalent to `equb`. |
-| **`for`** _`sym`_`,` _`expr_1`_`,` _`expr_2 [, expr_3] ...`_ **`next`** | Assemble a block of code/data one or more times. The loop counter _`sym`_ is a local symbol which changes from _`expr_1`_ to _`expr_2`_ (inclusive) in steps of _`expr_3`_ (-1 or 1 if unspecified). Examples: `for n, 0, 9: equb n: next`. Or: `for f, 3.5, -1.5, -0.75: print f: next`. |
-| **`if`** _`expr_1 ... [`_**`elif`** _`expr_2 ...] ... [`_**`elif`** _`expr_n ...] [`_**`else`** _`...]`_ **`endif`** | Conditional assembly. Assemble the code/data block for which the corresponding `if`-condition or the first `elif`-condition (in order of appearance) evaluates to a non-zero number (`TRUE`). When none exists, assemble the `else`-block (if any). Examples: `if n>3: print n: endif`. Or: `if n>3: print n: elif n<-3: print -n: else: print "Invalid": endif`. |
-| **`incbin`** _`expr`_ | Insert binary file named _`expr`_, e.g. `incbin "data/table.bin"`. _`expr`_ is a string that contains a valid path to an existing file. |
-| **`include`** _`expr`_ | Assemble and insert source file named _`expr`_, e.g. `include "src/spriteplot.asm"`. _`expr`_ is a string that contains a valid path to an existing file. |
-| **`macro`** _`sym_1 [, sym_2, ..., sym_n] ...`_ **`endmacro`** | Define a macro named _`sym_1`_ with optional parameters named _`sym_2`_, ..., _`sym_n`_. See also: [Macros](#macros). |
-| **`next`** | Mark the end of a `for...next` loop. See `for`. |
-| **`org`** _`expr_1 [, expr_2]`_  | Set PC (where code/data is assembled) to _`expr_1`_. Also set the logical PC (on which labels are based) to _`expr_2`_. If _`expr_2`_ is not specified, the logical PC will be equal to PC. Examples: `org $1000`. Or: `org $1000, $2000`. |
-| **`skip`** _`expr`_ | Increment PC by _`expr`_ bytes, e.g. `skip 16`. |
+| **`align`** _`expr`_ | Increment PC to next multiple of _`expr`_, e.g. `align 256` aligns PC to the next memory page |
+| **`elif`** _`expr`_ | Mark the start of an `elif`-block in an `if...endif`. See `if` |
+| **`else`** | Mark the start of an `else`-block in an `if...endif`. See `if` |
+| **`endif`** | Mark the end of an `if...endif` block. See `if` |
+| **`endmacro`** | Mark the end of a macro definition. See `macro` |
+| **`equb`** _`expr_1 [, expr_2, ..., expr_n]`_ | Insert one or more bytes and/or strings, e.g. `equb "Hello!", 13, 10, 0`. For numeric arguments forward references are allowed |
+| **`equs`** | Equivalent to `equb` |
+| **`for`** _`sym`_`,` _`expr_1`_`,` _`expr_2 [, expr_3] ...`_ **`next`** | Assemble a block of code/data one or more times. The loop counter _`sym`_ is a local symbol which changes from _`expr_1`_ to _`expr_2`_ (inclusive) in steps of _`expr_3`_ (-1 or 1 if unspecified). Examples: `for n, 0, 9: equb n: next`. Or: `for f, 3.5, -1.5, -0.75: print f: next` |
+| **`if`** _`expr_1 ... [`_**`elif`** _`expr_2 ...] ... [`_**`elif`** _`expr_n ...] [`_**`else`** _`...]`_ **`endif`** | Conditional assembly. Assemble the code/data block for which the corresponding `if`-condition or the first `elif`-condition (in order of appearance) evaluates to a non-zero number (`TRUE`). When none exists, assemble the `else`-block (if any). Examples: `if n>3: print n: endif`. Or: `if n>3: print n: elif n<-3: print -n: else: print "Invalid": endif` |
+| **`incbin`** _`expr`_ | Insert binary file named _`expr`_, e.g. `incbin "data/table.bin"`. _`expr`_ is a string that contains a valid path to an existing file |
+| **`include`** _`expr`_ | Assemble and insert source file named _`expr`_, e.g. `include "src/spriteplot.asm"`. _`expr`_ is a string that contains a valid path to an existing file |
+| **`macro`** _`sym_1 [, sym_2, ..., sym_n] ...`_ **`endmacro`** | Define a macro named _`sym_1`_ with optional parameters named _`sym_2`_, ..., _`sym_n`_. See also: [Macros](#macros) |
+| **`next`** | Mark the end of a `for...next` loop. See `for` |
+| **`org`** _`expr_1 [, expr_2]`_  | Set PC (where code/data is assembled) to _`expr_1`_. Also set the logical PC (on which labels are based) to _`expr_2`_. If _`expr_2`_ is not specified, the logical PC will be equal to PC. Examples: `org $1000`. Or: `org $1000, $2000` |
+| **`skip`** _`expr`_ | Increment PC by _`expr`_ bytes, e.g. `skip 16` |
 
 Directives that evaluate their arguments in pass 2:
 
 | Directive | Description |
 |-|-|
-| **`assert`** _`expr_1 [, expr_2, ..., expr_n]`_ | Evaluate one or more arguments and trigger an error for the first expression (in order of appearance) that is zero (`FALSE`). Example: `assert N<128, P%<$1000`. |
-| **`error`** _`[expr_1, ..., expr_n]`_ | Trigger an error after printing _`expr_1`_, ..., _`expr_n`_ to the standard error file (stderr). Example: `if N>=128: error "Expected N<128, but N=", N: endif`. |
-| **`equd`** _`expr_1 [, expr_2, ..., expr_n]`_ | Insert one or more double words (32-bit integers), e.g. `equd $C0DE6502`. |
-| **`equw`** _`expr_1 [, expr_2, ..., expr_n]`_ | Insert one or more words (16-bit integers), e.g. `equw $C0DE`. |
-| **`guard`** _`[expr_1, ..., expr_n]`_ | Set multiple guards at addresses _`expr_1`_, ..., _`epxr_n`_. An address guard triggers an error when code/data is assembled at that address. When no arguments are given, clear all current guards. Example: `guard $5800, $8000`. |
-| **`print`** _`[expr_1, ..., expr_n]`_ | Print zero or more expressions _`expr_1`_, ..., _`expr_n`_ to the standard output file (stdout) and finish with a newline. When no arguments are given, just print a newline. |
-| **`randomize`** _`expr`_ | Seed the random number generator with _`expr`_, e.g. `randomize 12345`. _`expr`_ can be any integer, float or string. |
-| **`save`** _`expr_1, expr_2, expr_3 [, expr_4 [, expr_5]]`_ | Save a code/data block from the 64Kb address space to a binary file named _`expr_1`_. The block starts at _`expr_2`_ and ends at _`expr_3`_ (exclusive). The optional execution address _`expr_4`_ and load address _`expr_5`_ are used in the accompanying .inf file. When not specified, these are equal to _`expr_2`_. Example: `save "CODE", $1000, $2000, $f25, $e00`. |
+| **`assert`** _`expr_1 [, expr_2, ..., expr_n]`_ | Evaluate one or more arguments and trigger an error for the first expression (in order of appearance) that is zero (`FALSE`). Example: `assert N<128, P%<$1000` |
+| **`error`** _`[expr_1, ..., expr_n]`_ | Trigger an error after printing _`expr_1`_, ..., _`expr_n`_ to the standard error file (stderr). Example: `if N>=128: error "Expected N<128, but N=", N: endif` |
+| **`equd`** _`expr_1 [, expr_2, ..., expr_n]`_ | Insert one or more double words (32-bit integers), e.g. `equd $C0DE6502` |
+| **`equw`** _`expr_1 [, expr_2, ..., expr_n]`_ | Insert one or more words (16-bit integers), e.g. `equw $C0DE` |
+| **`guard`** _`[expr_1, ..., expr_n]`_ | Set multiple guards at addresses _`expr_1`_, ..., _`epxr_n`_. An address guard triggers an error when code/data is assembled at that address. When no arguments are given, clear all current guards. Example: `guard $5800, $8000` |
+| **`print`** _`[expr_1, ..., expr_n]`_ | Print zero or more expressions _`expr_1`_, ..., _`expr_n`_ to the standard output file (stdout) and finish with a newline. When no arguments are given, just print a newline |
+| **`randomize`** _`expr`_ | Seed the random number generator with _`expr`_, e.g. `randomize 12345`. _`expr`_ can be any integer, float or string |
+| **`save`** _`expr_1, expr_2, expr_3 [, expr_4 [, expr_5]]`_ | Save a code/data block from the 64Kb address space to a raw binary file named _`expr_1`_. The block starts at _`expr_2`_ and ends at _`expr_3`_ (exclusive). The optional execution address _`expr_4`_ and load address _`expr_5`_ are used in the accompanying .inf file. When not specified, these are equal to _`expr_2`_. Example: `save "CODE", $1000, $2000, $f25, $e00` |
 
 ## Macros
 
@@ -412,12 +416,16 @@ The latest release of `max65` can always be found on [GitHub](https://github.com
 
 Download the .zip file, extract it and optionally add `max65.exe` to your system path. The assembler is now ready for use. 
 
-The assembler is compiled and tested on 64-bit Windows 11, but I successfully used `max65` with Wine on Linux (Ubuntu) as well. It is untested on macOS.
+The assembler is compiled and tested on 64-bit Windows 11. It is fully portable as long as you keep `max65.exe` together with the accompanying `python*.dll` and `python*.zip` files.
+
+### Linux and macOS
+`max65` is known to work on Ubuntu 20.04.5 with Wine 5.0-3 and on Ubuntu 22.04.1 with Wine 6.0.3. I am confident that other combinations of Linux and Wine will work equally well. This particular construction is untested on macOS.
 
 ## Changelog
 
 | Version | Date | Changes |
 |-|-|-|
+| 0.11 | Feb 17, 2023 | Create optional listing file (-l) |
 | 0.10 | Feb 15, 2023 | Initial release |
 
 ## Disclaimer
