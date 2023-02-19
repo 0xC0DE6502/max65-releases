@@ -387,7 +387,8 @@ code {
 <a href="#features-beyond-beebasm">Features beyond BeebAsm</a><br>
 <a href="#quirks-and-tips">Quirks and tips</a><br>
 <a href="#download-and-install">Download and install</a><br>
-    <a href="#linux-and-macos">Linux and macOS</a><br>
+    <a href="#windows">Windows</a><br>
+    <a href="#linux">Linux</a><br>
 <a href="#changelog">Changelog</a><br>
 <a href="#disclaimer">Disclaimer</a><br>
 <a href="#contact">Contact</a></p>
@@ -451,7 +452,7 @@ code {
 <p>In some cases <code>max65</code> needs to make an educated guess in pass 1 about forward references, especially when the choice between zeropage and absolute addressing modes needs to be made. It is therefore recommended (but not required) to define zeropage labels as early as possible in your program.</p>
 <h2 id="command-line-options">Command-line options</h2>
 <p>Here is a brief summary of how to invoke <code>max65</code>:</p>
-<pre class="hljs"><code><div>max65 [-h] [-l &lt;listfile&gt;] &lt;infile&gt;
+<pre class="hljs"><code><div>max65 [-h] [-v] [-l &lt;listfile&gt;] &lt;infile&gt;
 </div></code></pre>
 <table>
 <thead>
@@ -470,12 +471,16 @@ code {
 <td>Create a listing file</td>
 </tr>
 <tr>
+<td><code>-v</code></td>
+<td>Enable verbose output</td>
+</tr>
+<tr>
 <td><code>-h</code></td>
 <td>Show a help message and exit</td>
 </tr>
 </tbody>
 </table>
-<p>Example command-line: <code>max65 main.6502 -l main-listing.txt</code>.</p>
+<p>Example command-line: <code>max65 -v main.6502 -l main-listing.txt</code>.</p>
 <h2 id="error-and-warning-messages">Error and warning messages</h2>
 <p>When all goes well <code>max65</code> happily assembles the source file and exits with exit code 0 (success). However, when <code>max65</code> fails to assemble the source file, an error message is written to the standard error file (stderr) and the assembler exits with exit code 1 (failure). An error message shows the source filename, line number and cause of the error. Example of a typical error message: <code>*** error in pass 2: file main.6502, line 10: operator '/' doesn't work on strings</code>.</p>
 <p>In a few cases <code>max65</code> writes a warning message to stderr, but continues assembling your program. Example of a typical warning message: <code>*** warning in pass 2: file main.6502, line 6: instruction 'lda' can be assembled 1 byte shorter in zeropage addressing mode</code>.</p>
@@ -1149,27 +1154,34 @@ add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
 <td><code>max65</code> issues a friendly warning when an instruction could have used zeropage addressing mode (saving 1 byte)</td>
 </tr>
 <tr>
+<td>forced absolute addressing</td>
+<td>Place an exclamation mark (<code>!</code>) after a 65xx instruction to force absolute instead of zeropage addressing mode, e.g. <code>lda! 0</code> assembles to <code>ad 00 00</code> instead of <code>a5 00</code></td>
+</tr>
+<tr>
 <td><code>.</code> (anonymous labels)</td>
 <td>Use <code>.</code> to define unnamed labels. Relative branch instructions can jump backward or forward to them, e.g. <code>bne -</code>, or <code>bpl ++</code></td>
 </tr>
 <tr>
 <td>numbers</td>
-<td>When an integer is expected, a float number is automatically truncated (not rounded) to an integer. Large integers and negative integers are allowed for 65xx instructions and directives like <code>equb</code>/<code>equw</code>/<code>equd</code>. E.g. <code>lda #-2</code> is equal to <code>lda #&amp;fe</code>, <code>ldx #&amp;123</code> is equal to <code>ldx #&amp;23</code> (lower 8 bits), <code>equw $123456</code> is equal to <code>equw $3456</code> (lower 16 bits).</td>
+<td>When an integer is expected, a float number is automatically truncated (not rounded) to an integer. Large integers and negative integers are allowed for 65xx instructions and directives like <code>equb</code>/<code>equw</code>/<code>equd</code>. E.g. <code>lda #-2</code> is equal to <code>lda #&amp;fe</code>, <code>ldx #&amp;123</code> is equal to <code>ldx #&amp;23</code> (lower 8 bits), <code>equw $123456</code> is equal to <code>equw $3456</code> (lower 16 bits)</td>
 </tr>
 </tbody>
 </table>
 <h2 id="quirks-and-tips">Quirks and tips</h2>
 <ul>
-<li>You can use / and \\ in file paths, e.g. <code>include &quot;src/prog.asm&quot;</code>, <code>incbin &quot;..\\data.bin&quot;</code>.</li>
-<li>In an <code>if</code>-block or <code>elif</code>-block where the condition evaluates to zero (FALSE), chars and strings still need to be valid because of how the tokeniser works.</li>
+<li>It is best to use forward slashes (<code>/</code>) only in file paths, e.g. <code>include &quot;src/prog.asm&quot;</code>, <code>incbin &quot;../data.bin&quot;</code>.</li>
+<li>In an <code>if</code>-block or <code>elif</code>-block where the condition evaluates to zero (<code>FALSE</code>), chars and strings still need to be valid because of how the tokeniser works.</li>
 <li>Everything is case insensitive except for symbols which are case sensitive.</li>
 </ul>
 <h2 id="download-and-install">Download and install</h2>
 <p>The latest release of <code>max65</code> can always be found on <a href="https://github.com/0xC0DE6502/max65-releases">GitHub</a>.</p>
-<p>Download the .zip file, extract it and optionally add <code>max65.exe</code> to your system path. The assembler is now ready for use.</p>
+<p>64-bit binaries of <code>max65</code> are available for Windows and Linux (amd64). macOS is unsupported at the moment but may work with Wine and the Windows binary.</p>
+<h3 id="windows">Windows</h3>
+<p>Download the .zip file, extract it and optionally add <code>max65.exe</code> to your system path. The assembler is now ready for use. You will also find this user guide in various formats in the <code>max65</code> folder.</p>
 <p>The assembler is compiled and tested on 64-bit Windows 11. It is fully portable as long as you keep <code>max65.exe</code> together with the accompanying <code>python*.dll</code> and <code>python*.zip</code> files.</p>
-<h3 id="linux-and-macos">Linux and macOS</h3>
-<p><code>max65</code> is known to work on Ubuntu 20.04.5 with Wine 5.0-3 and on Ubuntu 22.04.1 with Wine 6.0.3. I am confident that other combinations of Linux and Wine will work equally well. This particular construction is untested on macOS.</p>
+<h3 id="linux">Linux</h3>
+<p><code>max65</code> is available in the <a href="https://snapcraft.io/max65">Snap Store</a>. Use <code>snap install max65</code> to install it. The assembler is now ready for use. You will also find this user guide in various formats in the <code>/snap/max65/current</code> folder.</p>
+<p>The Windows binary is also known to work on Ubuntu 20.04.5 with Wine 5.0-3 and on Ubuntu 22.04.1 with Wine 6.0.3. I am confident that other combinations of Linux and Wine will work equally well.</p>
 <h2 id="changelog">Changelog</h2>
 <table>
 <thead>
@@ -1180,6 +1192,11 @@ add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>0.12</td>
+<td>Feb 19, 2023</td>
+<td>Added verbose output option (-v)<br>Created snap package for Linux (amd64)<br>Fix: defined() checks validity of argument<br>Exclamation mark '!' forces absolute addressing</td>
+</tr>
 <tr>
 <td>0.11</td>
 <td>Feb 17, 2023</td>

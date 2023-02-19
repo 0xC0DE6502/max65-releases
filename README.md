@@ -26,7 +26,8 @@ The entire `max65` package is Copyright &#169; 2022-2023 [0xC0DE](https://twitte
 [Features beyond BeebAsm](#features-beyond-beebasm)  
 [Quirks and tips](#quirks-and-tips)  
 [Download and install](#download-and-install)  
-&nbsp;&nbsp;&nbsp;&nbsp;[Linux and macOS](#linux-and-macos)  
+&nbsp;&nbsp;&nbsp;&nbsp;[Windows](#windows)  
+&nbsp;&nbsp;&nbsp;&nbsp;[Linux](#linux)  
 [Changelog](#changelog)  
 [Disclaimer](#disclaimer)  
 [Contact](#contact)  
@@ -106,16 +107,17 @@ In some cases `max65` needs to make an educated guess in pass 1 about forward re
 
 Here is a brief summary of how to invoke `max65`:
 ```
-max65 [-h] [-l <listfile>] <infile>
+max65 [-h] [-v] [-l <listfile>] <infile>
 ```
 
 | Option | Description |
 |-|-|
 | `<infile>` | Input file (plain text source) |
 | `-l <listfile>` | Create a listing file |
+| `-v` | Enable verbose output |
 | `-h` | Show a help message and exit |
 
-Example command-line: `max65 main.6502 -l main-listing.txt`.
+Example command-line: `max65 -v main.6502 -l main-listing.txt`.
 
 ## Error and warning messages
 
@@ -401,30 +403,39 @@ A macro can call other macros and even itself recursively.
 | `defined("N")` | `TRUE` if symbol `N` is defined, `FALSE` otherwise |
 | `guard` | The `guard` directive sets one or more guards on the supplied memory addresses. When no arguments are given, all guards are cleared |
 | zeropage vs absolute | `max65` issues a friendly warning when an instruction could have used zeropage addressing mode (saving 1 byte) |
+| forced absolute addressing | Place an exclamation mark (`!`) after a 65xx instruction to force absolute instead of zeropage addressing mode, e.g. `lda! 0` assembles to `ad 00 00` instead of `a5 00` |
 | `.` (anonymous labels) | Use `.` to define unnamed labels. Relative branch instructions can jump backward or forward to them, e.g. `bne -`, or `bpl ++` |
-| numbers | When an integer is expected, a float number is automatically truncated (not rounded) to an integer. Large integers and negative integers are allowed for 65xx instructions and directives like `equb`/`equw`/`equd`. E.g. `lda #-2` is equal to `lda #&fe`, `ldx #&123` is equal to `ldx #&23` (lower 8 bits), `equw $123456` is equal to `equw $3456` (lower 16 bits).
+| numbers | When an integer is expected, a float number is automatically truncated (not rounded) to an integer. Large integers and negative integers are allowed for 65xx instructions and directives like `equb`/`equw`/`equd`. E.g. `lda #-2` is equal to `lda #&fe`, `ldx #&123` is equal to `ldx #&23` (lower 8 bits), `equw $123456` is equal to `equw $3456` (lower 16 bits)
 
 ## Quirks and tips
 
-* You can use / and \\\\ in file paths, e.g. `include "src/prog.asm"`, `incbin "..\\data.bin"`.
-* In an `if`-block or `elif`-block where the condition evaluates to zero (FALSE), chars and strings still need to be valid because of how the tokeniser works. 
+* It is best to use forward slashes (`/`) only in file paths, e.g. `include "src/prog.asm"`, `incbin "../data.bin"`.
+* In an `if`-block or `elif`-block where the condition evaluates to zero (`FALSE`), chars and strings still need to be valid because of how the tokeniser works. 
 * Everything is case insensitive except for symbols which are case sensitive.
 
 ## Download and install
 
 The latest release of `max65` can always be found on [GitHub](https://github.com/0xC0DE6502/max65-releases).
 
-Download the .zip file, extract it and optionally add `max65.exe` to your system path. The assembler is now ready for use. 
+64-bit binaries of `max65` are available for Windows and Linux (amd64). macOS is unsupported at the moment but may work with Wine and the Windows binary.
+
+### Windows
+
+Download the .zip file, extract it and optionally add `max65.exe` to your system path. The assembler is now ready for use. You will also find this user guide in various formats in the `max65` folder.
 
 The assembler is compiled and tested on 64-bit Windows 11. It is fully portable as long as you keep `max65.exe` together with the accompanying `python*.dll` and `python*.zip` files.
 
-### Linux and macOS
-`max65` is known to work on Ubuntu 20.04.5 with Wine 5.0-3 and on Ubuntu 22.04.1 with Wine 6.0.3. I am confident that other combinations of Linux and Wine will work equally well. This particular construction is untested on macOS.
+### Linux
+
+`max65` is available in the [Snap Store](https://snapcraft.io/max65). Use `snap install max65` to install it. The assembler is now ready for use. You will also find this user guide in various formats in the `/snap/max65/current` folder.
+
+The Windows binary is also known to work on Ubuntu 20.04.5 with Wine 5.0-3 and on Ubuntu 22.04.1 with Wine 6.0.3. I am confident that other combinations of Linux and Wine will work equally well.
 
 ## Changelog
 
 | Version | Date | Changes |
 |-|-|-|
+| 0.12 | Feb 19, 2023 | Added verbose output option (-v)<br>Created snap package for Linux (amd64)<br>Fix: defined() checks validity of argument<br>Exclamation mark '!' forces absolute addressing |
 | 0.11 | Feb 17, 2023 | Create optional listing file (-l) |
 | 0.10 | Feb 15, 2023 | Initial release |
 
