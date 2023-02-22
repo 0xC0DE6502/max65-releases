@@ -415,7 +415,7 @@ code {
 
   \ relocator stub that moves main program from 'LOAD_ADDR' to 'RUN_ADDR'
   org *, *+OFFSET             ; continue assembling at current PC (*)
-                              ; but also set logical PC to where relocator will execute
+                              ; also set logical PC (@) to where relocator will execute
 .entry                        ; program entry (execution starts here)
   ldx #end-main               ; number of bytes to copy (size of main program)
 .                             ; anonymous (unnamed) label
@@ -426,14 +426,17 @@ code {
   jmp main                    ; finally, execute main program at 'RUN_ADDR'
 
   ; save the final binary named &quot;CODE&quot; from label 'main' to current PC (*)
-  ; also save its accompanying .INF file
+  ; also save its accompanying .inf file
   ; set execution address to 'entry' (the $FF0000 signifies a host address)
   ; set load address to 'LOAD_ADDR' (again, the $FF0000 signifies a host address)
   save &quot;CODE&quot;, main, *, $FF0000|entry, $FF0000|LOAD_ADDR
 </div></code></pre>
 <h2 id="overview">Overview</h2>
 <p><code>max65</code> is heavily inspired by BeebAsm and aims to improve and extend it. If you are familiar with BeebAsm and/or BBC BASIC, many assembler directives and built-in functions are instantly recognisable. For a quick start, see <a href="#comparing-with-beebasm">Comparing with BeebAsm</a> and <a href="#features-beyond-beebasm">Features beyond BeebAsm</a>.</p>
-<p><code>max65</code> is a two-pass assembler. In pass 1 source files are tokenised and tokens are parsed to internal commands. In pass 2 these internal commands are translated to machine code and data. You can then save any part (or parts) of the 64Kb address space to your computer as raw binary file(s).</p>
+<blockquote>
+<p>I did not write <code>max65</code> because there is a shortage of 65xx assemblers -- far from it. I wrote <code>max65</code> because it seemed like a fun and challenging project. And I was right!</p>
+</blockquote>
+<p><code>max65</code> is a two-pass assembler. In pass 1 source files are tokenised and tokens are parsed to internal commands. In pass 2 these internal commands are translated to machine code and data. You can then save any part(s) of the 64Kb address space to your computer as raw binary file(s).</p>
 <p>A source file is a plain text file consisting of 65xx instructions, assembler directives, label definitions and symbol assignments. Each element may be put on a separate line. A single line may also contain multiple elements, separated by colons (<code>:</code>). A source file also usually contains whitespace and comments.</p>
 <p>This example shows all elements in a source file:</p>
 <pre class="hljs"><code><div>  org &amp;e00       ; assembler directive
@@ -452,7 +455,7 @@ code {
 <p>In some cases <code>max65</code> needs to make an educated guess in pass 1 about forward references, especially when the choice between zeropage and absolute addressing modes needs to be made. It is therefore recommended (but not required) to define zeropage labels as early as possible in your program.</p>
 <h2 id="command-line-options">Command-line options</h2>
 <p>Here is a brief summary of how to invoke <code>max65</code>:</p>
-<pre class="hljs"><code><div>max65 [-h] [-v] [-l &lt;listfile&gt;] &lt;infile&gt;
+<pre class="hljs"><code><div>max65 [-D &lt;sym&gt;=&lt;expr&gt;] [-h] [-l &lt;listfile&gt;] [-v] &lt;infile&gt;
 </div></code></pre>
 <table>
 <thead>
@@ -467,6 +470,14 @@ code {
 <td>Input file (plain text source)</td>
 </tr>
 <tr>
+<td><code>-D &lt;sym&gt;=&lt;expr&gt;</code></td>
+<td>Define symbol with the given expression</td>
+</tr>
+<tr>
+<td><code>-h</code></td>
+<td>Show a help message and exit</td>
+</tr>
+<tr>
 <td><code>-l &lt;listfile&gt;</code></td>
 <td>Create a listing file</td>
 </tr>
@@ -474,13 +485,9 @@ code {
 <td><code>-v</code></td>
 <td>Enable verbose output</td>
 </tr>
-<tr>
-<td><code>-h</code></td>
-<td>Show a help message and exit</td>
-</tr>
 </tbody>
 </table>
-<p>Example command-line: <code>max65 -v main.6502 -l main-listing.txt</code>.</p>
+<p>Example command-line: <code>max65 -D DBG=1 -v -D MSG=\&quot;hello\&quot; main.6502 -l listing.txt</code>.</p>
 <h2 id="error-and-warning-messages">Error and warning messages</h2>
 <p>When all goes well <code>max65</code> happily assembles the source file and exits with exit code 0 (success). However, when <code>max65</code> fails to assemble the source file, an error message is written to the standard error file (stderr) and the assembler exits with exit code 1 (failure). An error message shows the source filename, line number and cause of the error. Example of a typical error message: <code>*** error in pass 2: file main.6502, line 10: operator '/' doesn't work on strings</code>.</p>
 <p>In a few cases <code>max65</code> writes a warning message to stderr, but continues assembling your program. Example of a typical warning message: <code>*** warning in pass 2: file main.6502, line 6: instruction 'lda' can be assembled 1 byte shorter in zeropage addressing mode</code>.</p>
@@ -507,7 +514,7 @@ code {
 <p>A symbol is defined in 1 of 5 ways:</p>
 <ol>
 <li>
-<p><strong>Label definition</strong>. A label is defined by a period (<code>.</code>) directly followed by a symbol name, e.g. <code>.sine256</code>, <code>.current_level</code>. The symbol is added to the internal nametable at the current scope level, unless it already exists there. Its value is set to the current program counter (PC) which is a 16-bit integer.<br>
+<p><strong>Label definition</strong>. A label is defined by a period (<code>.</code>) directly followed by a symbol name, e.g. <code>.sine256</code>, <code>.current_level</code>. The symbol is added to the internal nametable at the current scope level, unless it already exists there. Its value is set to the current logical program counter (<code>@</code>) which is a 16-bit integer.<br>
 You can also define anonymous (unnamed) labels by simply using a period without name:</p>
 <pre class="hljs"><code><div>.       ; anonymous label #1
 tya
@@ -587,7 +594,7 @@ bmi --- ; jump to anonymous label #1
   for n, 1, N: equb n: next   ; local symbol 'n' for each loop cycle
   { .lab print N: N=6 }       ; local label 'lab' and another local symbol 'N'
                               ; overrides global label 'lab' 
-                              ; and overrides symbol 'N' in parent scope
+                              ; and overrides symbol 'N' in parent scopes
 }
 </div></code></pre>
 <p>Defining symbols for a different scope within the current scope is also possible by using a special notation, e.g.:</p>
@@ -813,8 +820,8 @@ print N         ; 32
 </thead>
 <tbody>
 <tr>
-<td><strong><code>align</code></strong> <em><code>expr</code></em></td>
-<td>Increment PC to next multiple of <em><code>expr</code></em>, e.g. <code>align 256</code> aligns PC to the next memory page</td>
+<td><strong><code>align</code></strong> <em><code>expr_1 [, expr_2]</code></em></td>
+<td>Increment PC to next multiple of <em><code>expr_1</code></em>, e.g. <code>align 256</code> aligns PC to the next memory page. Optionally, fill the skipped bytes with <em><code>expr_2</code></em> (default: value set by <code>filler</code>)</td>
 </tr>
 <tr>
 <td><strong><code>elif</code></strong> <em><code>expr</code></em></td>
@@ -841,6 +848,10 @@ print N         ; 32
 <td>Equivalent to <code>equb</code></td>
 </tr>
 <tr>
+<td><strong><code>filler</code></strong> <em><code>expr</code></em></td>
+<td>Set fill value (default: 0) for unused bytes to <em><code>expr</code></em>, e.g. <code>filler &amp;ff</code>. Used by <code>align</code>, <code>skip</code> and <code>save</code></td>
+</tr>
+<tr>
 <td><strong><code>for</code></strong> <em><code>sym</code></em><code>,</code> <em><code>expr_1</code></em><code>,</code> <em><code>expr_2 [, expr_3] ...</code></em> <strong><code>next</code></strong></td>
 <td>Assemble a block of code/data one or more times. The loop counter <em><code>sym</code></em> is a local symbol which changes from <em><code>expr_1</code></em> to <em><code>expr_2</code></em> (inclusive) in steps of <em><code>expr_3</code></em> (-1 or 1 if unspecified). Examples: <code>for n, 0, 9: equb n: next</code>. Or: <code>for f, 3.5, -1.5, -0.75: print f: next</code></td>
 </tr>
@@ -849,8 +860,8 @@ print N         ; 32
 <td>Conditional assembly. Assemble the code/data block for which the corresponding <code>if</code>-condition or the first <code>elif</code>-condition (in order of appearance) evaluates to a non-zero number (<code>TRUE</code>). When none exists, assemble the <code>else</code>-block (if any). Examples: <code>if n&gt;3: print n: endif</code>. Or: <code>if n&gt;3: print n: elif n&lt;-3: print -n: else: print &quot;Invalid&quot;: endif</code></td>
 </tr>
 <tr>
-<td><strong><code>incbin</code></strong> <em><code>expr</code></em></td>
-<td>Insert binary file named <em><code>expr</code></em>, e.g. <code>incbin &quot;data/table.bin&quot;</code>. <em><code>expr</code></em> is a string that contains a valid path to an existing file</td>
+<td><strong><code>incbin</code></strong> <em><code>expr_1 [, expr_2 [, expr_3]]</code></em></td>
+<td>Insert binary file named <em><code>expr_1</code></em> and optionally specify start offset <em><code>expr_2</code></em> and length <em><code>expr_3</code></em>, e.g. <code>incbin &quot;data/table.bin&quot;, $1000, 512</code>. <em><code>expr_1</code></em> is a string that contains a valid path to an existing file</td>
 </tr>
 <tr>
 <td><strong><code>include</code></strong> <em><code>expr</code></em></td>
@@ -869,8 +880,8 @@ print N         ; 32
 <td>Set PC (where code/data is assembled) to <em><code>expr_1</code></em>. Also set the logical PC (on which labels are based) to <em><code>expr_2</code></em>. If <em><code>expr_2</code></em> is not specified, the logical PC will be equal to PC. Examples: <code>org $1000</code>. Or: <code>org $1000, $2000</code></td>
 </tr>
 <tr>
-<td><strong><code>skip</code></strong> <em><code>expr</code></em></td>
-<td>Increment PC by <em><code>expr</code></em> bytes, e.g. <code>skip 16</code></td>
+<td><strong><code>skip</code></strong> <em><code>expr_1 [, expr_2]</code></em></td>
+<td>Increment PC by <em><code>expr_1</code></em> bytes, e.g. <code>skip 16</code>. Optionally, fill the skipped bytes with <em><code>expr_2</code></em> (default: value set by <code>filler</code>)</td>
 </tr>
 </tbody>
 </table>
@@ -913,7 +924,7 @@ print N         ; 32
 </tr>
 <tr>
 <td><strong><code>save</code></strong> <em><code>expr_1, expr_2, expr_3 [, expr_4 [, expr_5]]</code></em></td>
-<td>Save a code/data block from the 64Kb address space to a raw binary file named <em><code>expr_1</code></em>. The block starts at <em><code>expr_2</code></em> and ends at <em><code>expr_3</code></em> (exclusive). The optional execution address <em><code>expr_4</code></em> and load address <em><code>expr_5</code></em> are used in the accompanying .inf file. When not specified, these are equal to <em><code>expr_2</code></em>. Example: <code>save &quot;CODE&quot;, $1000, $2000, $f25, $e00</code></td>
+<td>Save a code/data block from the 64Kb address space to a raw binary file named <em><code>expr_1</code></em>. The block starts at <em><code>expr_2</code></em> and ends at <em><code>expr_3</code></em> (exclusive). The optional execution address <em><code>expr_4</code></em> and load address <em><code>expr_5</code></em> are used in the accompanying .inf file. When not specified, these are equal to <em><code>expr_2</code></em>. Example: <code>save &quot;CODE&quot;, $1000, $2000, $f25, $e00</code>. Parts of the memory map with no code or data are filled with the fill value (default: 0) set by <code>filler</code></td>
 </tr>
 </tbody>
 </table>
@@ -1165,6 +1176,10 @@ add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
 <td>numbers</td>
 <td>When an integer is expected, a float number is automatically truncated (not rounded) to an integer. Large integers and negative integers are allowed for 65xx instructions and directives like <code>equb</code>/<code>equw</code>/<code>equd</code>. E.g. <code>lda #-2</code> is equal to <code>lda #&amp;fe</code>, <code>ldx #&amp;123</code> is equal to <code>ldx #&amp;23</code> (lower 8 bits), <code>equw $123456</code> is equal to <code>equw $3456</code> (lower 16 bits)</td>
 </tr>
+<tr>
+<td><code>filler</code></td>
+<td>The <code>filler</code> directive sets the fill value (default: 0) used for unused bytes. Used by <code>skip</code> and <code>align</code> to fill the skipped bytes. And by <code>save</code> to fill areas without code/data</td>
+</tr>
 </tbody>
 </table>
 <h2 id="quirks-and-tips">Quirks and tips</h2>
@@ -1181,6 +1196,7 @@ add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
 <p>The assembler is compiled and tested on 64-bit Windows 11. It is fully portable as long as you keep <code>max65.exe</code> together with the accompanying <code>python*.dll</code> and <code>python*.zip</code> files.</p>
 <h3 id="linux">Linux</h3>
 <p><code>max65</code> is available in the <a href="https://snapcraft.io/max65">Snap Store</a>. Use <code>snap install max65</code> to install it. The assembler is now ready for use. You will also find this user guide in various formats in the <code>/snap/max65/current</code> folder.</p>
+<p>Alternatively, download the snap package from <a href="https://github.com/0xC0DE6502/max65-releases">GitHub</a> and use <code>snap install &lt;filename&gt; --dangerous</code> to install it.</p>
 <p>The Windows binary is also known to work on Ubuntu 20.04.5 with Wine 5.0-3 and on Ubuntu 22.04.1 with Wine 6.0.3. I am confident that other combinations of Linux and Wine will work equally well.</p>
 <h2 id="changelog">Changelog</h2>
 <table>
@@ -1192,6 +1208,11 @@ add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>0.13</td>
+<td>Feb 22, 2023</td>
+<td>Define symbols on the command line (-D)<br>Optional start offset and length for <code>incbin</code><br>Directive <code>filler</code> sets fill value (default: 0) for unused bytes<br>Optional fill value (default: set by <code>filler</code>) for <code>skip</code> and <code>align</code></td>
+</tr>
 <tr>
 <td>0.12</td>
 <td>Feb 19, 2023</td>

@@ -58,7 +58,7 @@ Let's dive right in with a short but real program to demonstrate some of the fea
 
   \ relocator stub that moves main program from 'LOAD_ADDR' to 'RUN_ADDR'
   org *, *+OFFSET             ; continue assembling at current PC (*)
-                              ; but also set logical PC to where relocator will execute
+                              ; also set logical PC (@) to where relocator will execute
 .entry                        ; program entry (execution starts here)
   ldx #end-main               ; number of bytes to copy (size of main program)
 .                             ; anonymous (unnamed) label
@@ -69,7 +69,7 @@ Let's dive right in with a short but real program to demonstrate some of the fea
   jmp main                    ; finally, execute main program at 'RUN_ADDR'
 
   ; save the final binary named "CODE" from label 'main' to current PC (*)
-  ; also save its accompanying .INF file
+  ; also save its accompanying .inf file
   ; set execution address to 'entry' (the $FF0000 signifies a host address)
   ; set load address to 'LOAD_ADDR' (again, the $FF0000 signifies a host address)
   save "CODE", main, *, $FF0000|entry, $FF0000|LOAD_ADDR
@@ -79,7 +79,9 @@ Let's dive right in with a short but real program to demonstrate some of the fea
 
 `max65` is heavily inspired by BeebAsm and aims to improve and extend it. If you are familiar with BeebAsm and/or BBC BASIC, many assembler directives and built-in functions are instantly recognisable. For a quick start, see [Comparing with BeebAsm](#comparing-with-beebasm) and [Features beyond BeebAsm](#features-beyond-beebasm).
 
-`max65` is a two-pass assembler. In pass 1 source files are tokenised and tokens are parsed to internal commands. In pass 2 these internal commands are translated to machine code and data. You can then save any part (or parts) of the 64Kb address space to your computer as raw binary file(s). 
+> I did not write `max65` because there is a shortage of 65xx assemblers -- far from it. I wrote `max65` because it seemed like a fun and challenging project. And I was right!
+
+`max65` is a two-pass assembler. In pass 1 source files are tokenised and tokens are parsed to internal commands. In pass 2 these internal commands are translated to machine code and data. You can then save any part(s) of the 64Kb address space to your computer as raw binary file(s). 
 
 A source file is a plain text file consisting of 65xx instructions, assembler directives, label definitions and symbol assignments. Each element may be put on a separate line. A single line may also contain multiple elements, separated by colons (`:`). A source file also usually contains whitespace and comments.
 
@@ -107,17 +109,18 @@ In some cases `max65` needs to make an educated guess in pass 1 about forward re
 
 Here is a brief summary of how to invoke `max65`:
 ```
-max65 [-h] [-v] [-l <listfile>] <infile>
+max65 [-D <sym>=<expr>] [-h] [-l <listfile>] [-v] <infile>
 ```
 
 | Option | Description |
 |-|-|
 | `<infile>` | Input file (plain text source) |
+| `-D <sym>=<expr>` | Define symbol with the given expression |
+| `-h` | Show a help message and exit |
 | `-l <listfile>` | Create a listing file |
 | `-v` | Enable verbose output |
-| `-h` | Show a help message and exit |
 
-Example command-line: `max65 -v main.6502 -l main-listing.txt`.
+Example command-line: `max65 -D DBG=1 -v -D MSG=\"hello\" main.6502 -l listing.txt`.
 
 ## Error and warning messages
 
@@ -147,7 +150,7 @@ Symbols are used to name things in a source file. The name of a symbol is case s
 
 A symbol is defined in 1 of 5 ways:
 
-1. **Label definition**. A label is defined by a period (`.`) directly followed by a symbol name, e.g. `.sine256`, `.current_level`. The symbol is added to the internal nametable at the current scope level, unless it already exists there. Its value is set to the current program counter (PC) which is a 16-bit integer.  
+1. **Label definition**. A label is defined by a period (`.`) directly followed by a symbol name, e.g. `.sine256`, `.current_level`. The symbol is added to the internal nametable at the current scope level, unless it already exists there. Its value is set to the current logical program counter (`@`) which is a 16-bit integer.  
 You can also define anonymous (unnamed) labels by simply using a period without name:
     ```
     .       ; anonymous label #1
@@ -195,7 +198,7 @@ N=-1                          ; global symbol 'N'
   for n, 1, N: equb n: next   ; local symbol 'n' for each loop cycle
   { .lab print N: N=6 }       ; local label 'lab' and another local symbol 'N'
                               ; overrides global label 'lab' 
-                              ; and overrides symbol 'N' in parent scope
+                              ; and overrides symbol 'N' in parent scopes
 }
 ```
 
@@ -279,21 +282,22 @@ Directives that evaluate their arguments in pass 1:
 
 | Directive | Description |
 |-|-|
-| **`align`** _`expr`_ | Increment PC to next multiple of _`expr`_, e.g. `align 256` aligns PC to the next memory page |
+| **`align`** _`expr_1 [, expr_2]`_ | Increment PC to next multiple of _`expr_1`_, e.g. `align 256` aligns PC to the next memory page. Optionally, fill the skipped bytes with _`expr_2`_ (default: value set by `filler`) |
 | **`elif`** _`expr`_ | Mark the start of an `elif`-block in an `if...endif`. See `if` |
 | **`else`** | Mark the start of an `else`-block in an `if...endif`. See `if` |
 | **`endif`** | Mark the end of an `if...endif` block. See `if` |
 | **`endmacro`** | Mark the end of a macro definition. See `macro` |
 | **`equb`** _`expr_1 [, expr_2, ..., expr_n]`_ | Insert one or more bytes and/or strings, e.g. `equb "Hello!", 13, 10, 0`. For numeric arguments forward references are allowed |
 | **`equs`** | Equivalent to `equb` |
+| **`filler`** _`expr`_ | Set fill value (default: 0) for unused bytes to _`expr`_, e.g. `filler &ff`. Used by `align`, `skip` and `save` |
 | **`for`** _`sym`_`,` _`expr_1`_`,` _`expr_2 [, expr_3] ...`_ **`next`** | Assemble a block of code/data one or more times. The loop counter _`sym`_ is a local symbol which changes from _`expr_1`_ to _`expr_2`_ (inclusive) in steps of _`expr_3`_ (-1 or 1 if unspecified). Examples: `for n, 0, 9: equb n: next`. Or: `for f, 3.5, -1.5, -0.75: print f: next` |
 | **`if`** _`expr_1 ... [`_**`elif`** _`expr_2 ...] ... [`_**`elif`** _`expr_n ...] [`_**`else`** _`...]`_ **`endif`** | Conditional assembly. Assemble the code/data block for which the corresponding `if`-condition or the first `elif`-condition (in order of appearance) evaluates to a non-zero number (`TRUE`). When none exists, assemble the `else`-block (if any). Examples: `if n>3: print n: endif`. Or: `if n>3: print n: elif n<-3: print -n: else: print "Invalid": endif` |
-| **`incbin`** _`expr`_ | Insert binary file named _`expr`_, e.g. `incbin "data/table.bin"`. _`expr`_ is a string that contains a valid path to an existing file |
+| **`incbin`** _`expr_1 [, expr_2 [, expr_3]]`_ | Insert binary file named _`expr_1`_ and optionally specify start offset _`expr_2`_ and length _`expr_3`_, e.g. `incbin "data/table.bin", $1000, 512`. _`expr_1`_ is a string that contains a valid path to an existing file |
 | **`include`** _`expr`_ | Assemble and insert source file named _`expr`_, e.g. `include "src/spriteplot.asm"`. _`expr`_ is a string that contains a valid path to an existing file |
 | **`macro`** _`sym_1 [, sym_2, ..., sym_n] ...`_ **`endmacro`** | Define a macro named _`sym_1`_ with optional parameters named _`sym_2`_, ..., _`sym_n`_. See also: [Macros](#macros) |
 | **`next`** | Mark the end of a `for...next` loop. See `for` |
 | **`org`** _`expr_1 [, expr_2]`_  | Set PC (where code/data is assembled) to _`expr_1`_. Also set the logical PC (on which labels are based) to _`expr_2`_. If _`expr_2`_ is not specified, the logical PC will be equal to PC. Examples: `org $1000`. Or: `org $1000, $2000` |
-| **`skip`** _`expr`_ | Increment PC by _`expr`_ bytes, e.g. `skip 16` |
+| **`skip`** _`expr_1 [, expr_2]`_ | Increment PC by _`expr_1`_ bytes, e.g. `skip 16`. Optionally, fill the skipped bytes with _`expr_2`_ (default: value set by `filler`) |
 
 Directives that evaluate their arguments in pass 2:
 
@@ -306,7 +310,7 @@ Directives that evaluate their arguments in pass 2:
 | **`guard`** _`[expr_1, ..., expr_n]`_ | Set multiple guards at addresses _`expr_1`_, ..., _`epxr_n`_. An address guard triggers an error when code/data is assembled at that address. When no arguments are given, clear all current guards. Example: `guard $5800, $8000` |
 | **`print`** _`[expr_1, ..., expr_n]`_ | Print zero or more expressions _`expr_1`_, ..., _`expr_n`_ to the standard output file (stdout) and finish with a newline. When no arguments are given, just print a newline |
 | **`randomize`** _`expr`_ | Seed the random number generator with _`expr`_, e.g. `randomize 12345`. _`expr`_ can be any integer, float or string |
-| **`save`** _`expr_1, expr_2, expr_3 [, expr_4 [, expr_5]]`_ | Save a code/data block from the 64Kb address space to a raw binary file named _`expr_1`_. The block starts at _`expr_2`_ and ends at _`expr_3`_ (exclusive). The optional execution address _`expr_4`_ and load address _`expr_5`_ are used in the accompanying .inf file. When not specified, these are equal to _`expr_2`_. Example: `save "CODE", $1000, $2000, $f25, $e00` |
+| **`save`** _`expr_1, expr_2, expr_3 [, expr_4 [, expr_5]]`_ | Save a code/data block from the 64Kb address space to a raw binary file named _`expr_1`_. The block starts at _`expr_2`_ and ends at _`expr_3`_ (exclusive). The optional execution address _`expr_4`_ and load address _`expr_5`_ are used in the accompanying .inf file. When not specified, these are equal to _`expr_2`_. Example: `save "CODE", $1000, $2000, $f25, $e00`. Parts of the memory map with no code or data are filled with the fill value (default: 0) set by `filler` |
 
 ## Macros
 
@@ -405,7 +409,8 @@ A macro can call other macros and even itself recursively.
 | zeropage vs absolute | `max65` issues a friendly warning when an instruction could have used zeropage addressing mode (saving 1 byte) |
 | forced absolute addressing | Place an exclamation mark (`!`) after a 65xx instruction to force absolute instead of zeropage addressing mode, e.g. `lda! 0` assembles to `ad 00 00` instead of `a5 00` |
 | `.` (anonymous labels) | Use `.` to define unnamed labels. Relative branch instructions can jump backward or forward to them, e.g. `bne -`, or `bpl ++` |
-| numbers | When an integer is expected, a float number is automatically truncated (not rounded) to an integer. Large integers and negative integers are allowed for 65xx instructions and directives like `equb`/`equw`/`equd`. E.g. `lda #-2` is equal to `lda #&fe`, `ldx #&123` is equal to `ldx #&23` (lower 8 bits), `equw $123456` is equal to `equw $3456` (lower 16 bits)
+| numbers | When an integer is expected, a float number is automatically truncated (not rounded) to an integer. Large integers and negative integers are allowed for 65xx instructions and directives like `equb`/`equw`/`equd`. E.g. `lda #-2` is equal to `lda #&fe`, `ldx #&123` is equal to `ldx #&23` (lower 8 bits), `equw $123456` is equal to `equw $3456` (lower 16 bits) |
+| `filler` | The `filler` directive sets the fill value (default: 0) used for unused bytes. Used by `skip` and `align` to fill the skipped bytes. And by `save` to fill areas without code/data |
 
 ## Quirks and tips
 
@@ -429,12 +434,15 @@ The assembler is compiled and tested on 64-bit Windows 11. It is fully portable 
 
 `max65` is available in the [Snap Store](https://snapcraft.io/max65). Use `snap install max65` to install it. The assembler is now ready for use. You will also find this user guide in various formats in the `/snap/max65/current` folder.
 
+Alternatively, download the snap package from [GitHub](https://github.com/0xC0DE6502/max65-releases) and use `snap install <filename> --dangerous` to install it.
+
 The Windows binary is also known to work on Ubuntu 20.04.5 with Wine 5.0-3 and on Ubuntu 22.04.1 with Wine 6.0.3. I am confident that other combinations of Linux and Wine will work equally well.
 
 ## Changelog
 
 | Version | Date | Changes |
 |-|-|-|
+| 0.13 | Feb 22, 2023 | Define symbols on the command line (-D)<br>Optional start offset and length for `incbin`<br>Directive `filler` sets fill value (default: 0) for unused bytes<br>Optional fill value (default: set by `filler`) for `skip` and `align` |
 | 0.12 | Feb 19, 2023 | Added verbose output option (-v)<br>Created snap package for Linux (amd64)<br>Fix: defined() checks validity of argument<br>Exclamation mark '!' forces absolute addressing |
 | 0.11 | Feb 17, 2023 | Create optional listing file (-l) |
 | 0.10 | Feb 15, 2023 | Initial release |
