@@ -22,6 +22,7 @@ The entire `max65` package is Copyright &#169; 2022-2023 [0xC0DE](https://twitte
 &nbsp;&nbsp;&nbsp;&nbsp;[Built-in functions](#built-in-functions)  
 [Assembler directives](#assembler-directives)  
 [Macros](#macros)  
+&nbsp;&nbsp;&nbsp;&nbsp;[Advanced macros](#advanced-macros)  
 [Comparing with BeebAsm](#comparing-with-beebasm)  
 [Features beyond BeebAsm](#features-beyond-beebasm)  
 [Quirks and tips](#quirks-and-tips)  
@@ -348,6 +349,51 @@ The macro call defines a local scope and binds the given arguments to the macro 
 
 A macro can call other macros and even itself recursively.
 
+### Advanced macros
+
+A macro doesn't have to emit code or data and can be used as a sort of user defined function.
+
+> Geek speak: this is done by exploiting macro call recursion, nested local scopes and defining symbols in parent scopes.
+
+Here is an example of a user defined recursive Fibonacci function:
+```
+macro fib n
+  if n<0: error "macro fib: negative number (", n, ") not allowed!"
+  elif n<2: fib_result^=n
+  else ; n>=2
+    fib_result^=A+B
+    { fib n-2: A^=fib_result }
+    { fib n-1: B^=fib_result }
+  endif
+endmacro
+
+for n, 0, 10
+  fib n ; sets 'fib_result'
+  print "fib(" , n, ")=", fib_result
+next
+```
+
+One more example. A "raise to the power of" function taking 2 arguments:
+```
+macro pow x, y
+  if y==0: pow_result^=1
+  elif y<0
+    pow_result^=res
+    { pow x, y+1: res^=pow_result/x }
+  else ; y>0
+    pow_result^=res
+    { pow x, y-1: res^=x*pow_result }
+  endif
+endmacro
+    
+for x, 5, 15, 5
+  for y, -3, 3
+    pow x, y ; sets 'pow_result'
+    print "pow(", x, ", ", y, ")=", pow_result
+  next
+next
+```
+
 ## Comparing with BeebAsm
 
 `max65` follows BeebAsm's syntax closely, but there are some differences and alternatives:
@@ -391,8 +437,8 @@ A macro can call other macros and even itself recursively.
 
 | Feature | Description |
 |-|-|
-| Undocumented 6502 instructions | `alr`, `anc`, `ane`, `arr`, `dcp`, `dop`, `hlt`, `isb`, `las`, `lax`, `nop`, `rla`, `rra`, `sax`, `sbc`, `sbx`, `sha`, `shx`, `shy`, `slo`, `sre`, `tas`, `top` |
-| `N^=3` | Define N in parent scope |
+| Undocumented 6502 instructions | `alr`, `anc`, `ane`, `arr`, `dcp`, `dop`, `isc`, `jam`, `las`, `lax`, `nop`, `rla`, `rra`, `sax`, `sbc`, `sbx`, `sha`, `shx`, `shy`, `slo`, `sre`, `tas`, `top` |
+| `N^=3` | Define N in parent scope (and in current scope) |
 | `N*=3` | Define N in global scope |
 | `&C0_DE`, `$6'502`, `1'234`, `3.14_15`, `%00_10'00` | Digit grouping with `_` and `'` for all numbers, not just binary |
 | `N=A*A: A=2` (forward references in assignments) | Lazy expression evaluation allows forward references everywhere |
@@ -411,6 +457,7 @@ A macro can call other macros and even itself recursively.
 | `.` (anonymous labels) | Use `.` to define unnamed labels. Relative branch instructions can jump backward or forward to them, e.g. `bne -`, or `bpl ++` |
 | numbers | When an integer is expected, a float number is automatically truncated (not rounded) to an integer. Large integers and negative integers are allowed for 65xx instructions and directives like `equb`/`equw`/`equd`. E.g. `lda #-2` is equal to `lda #&fe`, `ldx #&123` is equal to `ldx #&23` (lower 8 bits), `equw $123456` is equal to `equw $3456` (lower 16 bits) |
 | `filler` | The `filler` directive sets the fill value (default: 0) used for unused bytes. Used by `skip` and `align` to fill the skipped bytes. And by `save` to fill areas without code/data |
+| user defined functions | Sort of. See [Advanced macros](#advanced-macros)
 
 ## Quirks and tips
 
@@ -442,6 +489,7 @@ The Windows binary is also known to work on Ubuntu 20.04.5 with Wine 5.0-3 and o
 
 | Version | Date | Changes |
 |-|-|-|
+| 0.14 | Feb 25, 2023 | Fixed some undocumented 6502 instructions<br>Fixed macro expansion<br>`$.` prefix in .inf files<br>Listing: can show labels +1 or +2<br>User guide: using macros as user defined functions |
 | 0.13 | Feb 22, 2023 | Define symbols on the command line (-D)<br>Optional start offset and length for `incbin`<br>Directive `filler` sets fill value (default: 0) for unused bytes<br>Optional fill value (default: set by `filler`) for `skip` and `align` |
 | 0.12 | Feb 19, 2023 | Added verbose output option (-v)<br>Created snap package for Linux (amd64)<br>Fix: defined() checks validity of argument<br>Exclamation mark '!' forces absolute addressing |
 | 0.11 | Feb 17, 2023 | Create optional listing file (-l) |

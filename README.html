@@ -383,6 +383,7 @@ code {
     <a href="#built-in-functions">Built-in functions</a><br>
 <a href="#assembler-directives">Assembler directives</a><br>
 <a href="#macros">Macros</a><br>
+    <a href="#advanced-macros">Advanced macros</a><br>
 <a href="#comparing-with-beebasm">Comparing with BeebAsm</a><br>
 <a href="#features-beyond-beebasm">Features beyond BeebAsm</a><br>
 <a href="#quirks-and-tips">Quirks and tips</a><br>
@@ -958,6 +959,46 @@ add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
 }
 </div></code></pre>
 <p>A macro can call other macros and even itself recursively.</p>
+<h3 id="advanced-macros">Advanced macros</h3>
+<p>A macro doesn't have to emit code or data and can be used as a sort of user defined function.</p>
+<blockquote>
+<p>Geek speak: this is done by exploiting macro call recursion, nested local scopes and defining symbols in parent scopes.</p>
+</blockquote>
+<p>Here is an example of a user defined recursive Fibonacci function:</p>
+<pre class="hljs"><code><div>macro fib n
+  if n&lt;0: error &quot;macro fib: negative number (&quot;, n, &quot;) not allowed!&quot;
+  elif n&lt;2: fib_result^=n
+  else ; n&gt;=2
+    fib_result^=A+B
+    { fib n-2: A^=fib_result }
+    { fib n-1: B^=fib_result }
+  endif
+endmacro
+
+for n, 0, 10
+  fib n ; sets 'fib_result'
+  print &quot;fib(&quot; , n, &quot;)=&quot;, fib_result
+next
+</div></code></pre>
+<p>One more example. A &quot;raise to the power of&quot; function taking 2 arguments:</p>
+<pre class="hljs"><code><div>macro pow x, y
+  if y==0: pow_result^=1
+  elif y&lt;0
+    pow_result^=res
+    { pow x, y+1: res^=pow_result/x }
+  else ; y&gt;0
+    pow_result^=res
+    { pow x, y-1: res^=x*pow_result }
+  endif
+endmacro
+    
+for x, 5, 15, 5
+  for y, -3, 3
+    pow x, y ; sets 'pow_result'
+    print &quot;pow(&quot;, x, &quot;, &quot;, y, &quot;)=&quot;, pow_result
+  next
+next
+</div></code></pre>
 <h2 id="comparing-with-beebasm">Comparing with BeebAsm</h2>
 <p><code>max65</code> follows BeebAsm's syntax closely, but there are some differences and alternatives:</p>
 <table>
@@ -1102,11 +1143,11 @@ add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
 <tbody>
 <tr>
 <td>Undocumented 6502 instructions</td>
-<td><code>alr</code>, <code>anc</code>, <code>ane</code>, <code>arr</code>, <code>dcp</code>, <code>dop</code>, <code>hlt</code>, <code>isb</code>, <code>las</code>, <code>lax</code>, <code>nop</code>, <code>rla</code>, <code>rra</code>, <code>sax</code>, <code>sbc</code>, <code>sbx</code>, <code>sha</code>, <code>shx</code>, <code>shy</code>, <code>slo</code>, <code>sre</code>, <code>tas</code>, <code>top</code></td>
+<td><code>alr</code>, <code>anc</code>, <code>ane</code>, <code>arr</code>, <code>dcp</code>, <code>dop</code>, <code>isc</code>, <code>jam</code>, <code>las</code>, <code>lax</code>, <code>nop</code>, <code>rla</code>, <code>rra</code>, <code>sax</code>, <code>sbc</code>, <code>sbx</code>, <code>sha</code>, <code>shx</code>, <code>shy</code>, <code>slo</code>, <code>sre</code>, <code>tas</code>, <code>top</code></td>
 </tr>
 <tr>
 <td><code>N^=3</code></td>
-<td>Define N in parent scope</td>
+<td>Define N in parent scope (and in current scope)</td>
 </tr>
 <tr>
 <td><code>N*=3</code></td>
@@ -1180,6 +1221,10 @@ add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
 <td><code>filler</code></td>
 <td>The <code>filler</code> directive sets the fill value (default: 0) used for unused bytes. Used by <code>skip</code> and <code>align</code> to fill the skipped bytes. And by <code>save</code> to fill areas without code/data</td>
 </tr>
+<tr>
+<td>user defined functions</td>
+<td>Sort of. See <a href="#advanced-macros">Advanced macros</a></td>
+</tr>
 </tbody>
 </table>
 <h2 id="quirks-and-tips">Quirks and tips</h2>
@@ -1208,6 +1253,11 @@ add_ptr &amp;70, &amp;140          ; 2 arguments are passed to the macro
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>0.14</td>
+<td>Feb 25, 2023</td>
+<td>Fixed some undocumented 6502 instructions<br>Fixed macro expansion<br><code>$.</code> prefix in .inf files<br>Listing: can show labels +1 or +2<br>User guide: using macros as user defined functions</td>
+</tr>
 <tr>
 <td>0.13</td>
 <td>Feb 22, 2023</td>
