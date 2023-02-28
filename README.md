@@ -25,6 +25,9 @@ The entire `max65` package is Copyright &#169; 2022-2023 [0xC0DE](https://twitte
 &nbsp;&nbsp;&nbsp;&nbsp;[Advanced macros](#advanced-macros)  
 [Comparing with BeebAsm](#comparing-with-beebasm)  
 [Features beyond BeebAsm](#features-beyond-beebasm)  
+[Supported instructions](#supported-instructions)  
+&nbsp;&nbsp;&nbsp;&nbsp;[6502](#6502)  
+&nbsp;&nbsp;&nbsp;&nbsp;[65C02](#65c02)  
 [Quirks and tips](#quirks-and-tips)  
 [Download and install](#download-and-install)  
 &nbsp;&nbsp;&nbsp;&nbsp;[Windows](#windows)  
@@ -217,6 +220,8 @@ Defining symbols for a different scope within the current scope is also possible
 print N         ; 32
 ```
 
+Anonymous labels (`.`) can be defined anywhere, but you can only branch to those in the current scope.
+
 ### Operators
 
 Operators in order of increasing precedence:
@@ -284,6 +289,7 @@ Directives that evaluate their arguments in pass 1:
 | Directive | Description |
 |-|-|
 | **`align`** _`expr_1 [, expr_2]`_ | Increment PC to next multiple of _`expr_1`_, e.g. `align 256` aligns PC to the next memory page. Optionally, fill the skipped bytes with _`expr_2`_ (default: value set by `filler`) |
+| **`cpu`** _`expr`_ | Select allowed instruction set (default: 6502). If _`expr`_ evaluates to 0, the [6502 instruction set](#6502) is selected. For value 1, the [65C02 instruction set](#65c02) is selected |
 | **`elif`** _`expr`_ | Mark the start of an `elif`-block in an `if...endif`. See `if` |
 | **`else`** | Mark the start of an `else`-block in an `if...endif`. See `if` |
 | **`endif`** | Mark the end of an `if...endif` block. See `if` |
@@ -409,7 +415,6 @@ next
 | `x^y` (raise to the power of) | `exp(y*ln(x))` for `x`>0 |
 | `EVAL()` | N/A |
 | `TIME$` | `TIME$("")` |
-| `CPU` | N/A |
 | `AND` (logical) | `and` |
 | `AND` (bitwise) | `&` |
 | `OR` (logical) | `or` |
@@ -459,11 +464,34 @@ next
 | `filler` | The `filler` directive sets the fill value (default: 0) used for unused bytes. Used by `skip` and `align` to fill the skipped bytes. And by `save` to fill areas without code/data |
 | user defined functions | Sort of. See [Advanced macros](#advanced-macros)
 
+## Supported instructions
+
+### 6502
+
+`max65` supports all documented and undocumented 6502 instructions.
+
+Documented 6502 instructions:  
+`adc`, `and`, `asl`, `bcc`, `bcs`, `beq`, `bit`, `bmi`, `bne`, `bpl`, `brk`, `bvc`, `bvs`, `clc`, `cld`, `cli`, `clv`, `cmp`, `cpx`, `cpy`, `dec`, `dex`, `dey`, `eor`, `inc`, `inx`, `iny`, `jmp`, `jsr`, `lda`, `ldx`, `ldy`, `lsr`, `nop`, `ora`, `pha`, `php`, `pla`, `plp`, `rol`, `ror`, `rti`, `rts`, `sbc`, `sec`, `sed`, `sei`, `sta`, `stx`, `sty`, `tax`, `tay`, `tsx`, `txa`, `txs`, `tya`.
+
+Undocumented 6502 instructions:  
+`alr`, `anc`, `ane`, `arr`, `dcp`, `dop`, `isc`, `jam`, `las`, `lax`, `nop`, `rla`, `rra`, `sax`, `sbc`, `sbx`, `sha`, `shx`, `shy`, `slo`, `sre`, `tas`, `top`.
+
+### 65C02
+
+`max65` supports all documented and undocumented 65C02 instructions.
+
+Documented 65C02 instructions:  
+All documented 6502 instructions and `bra`, `phx`, `phy`, `plx`, `ply`, `stz`, `trb`, `tsb`.
+But not `bbr`, `bbs`, `rmb`, `smb` (Rockwell, WDC) and `stp`, `wai` (WDC).
+
+Undocumented 65C02 instructions:  
+`dop`, `nop`, `top`.
+
 ## Quirks and tips
 
-* It is best to use forward slashes (`/`) only in file paths, e.g. `include "src/prog.asm"`, `incbin "../data.bin"`.
+* It is best to use forward slashes (`/`) only in file paths, e.g. `include "src/prog.asm"`, `incbin "../data.bin"`. Using whitespace in file paths is discouraged.
 * In an `if`-block or `elif`-block where the condition evaluates to zero (`FALSE`), chars and strings still need to be valid because of how the tokeniser works. 
-* Everything is case insensitive except for symbols which are case sensitive.
+* Everything is case insensitive except for symbols which are case sensitive. For example, `guard`, `Guard` and `GUARD` all refer to the same directive. Similarly, `lda`, `LDA` and `LdA` all refer to the same instruction. But `sym1`, `Sym1` and `SYM1` are 3 different symbols.
 
 ## Download and install
 
@@ -473,7 +501,7 @@ The latest release of `max65` can always be found on [GitHub](https://github.com
 
 ### Windows
 
-Download the .zip file, extract it and optionally add `max65.exe` to your system path. The assembler is now ready for use. You will also find this user guide in various formats in the `max65` folder.
+Download the .zip file, extract it and optionally add the path to `max65.exe` to your system path. The assembler is now ready for use. You will also find this user guide in various formats in the `max65` folder.
 
 The assembler is compiled and tested on 64-bit Windows 11. It is fully portable as long as you keep `max65.exe` together with the accompanying `python*.dll` and `python*.zip` files.
 
@@ -489,6 +517,7 @@ The Windows binary is also known to work on Ubuntu 20.04.5 with Wine 5.0-3 and o
 
 | Version | Date | Changes |
 |-|-|-|
+| 0.15 | Feb 28, 2023 | Added 65C02 instruction set (not Rockwell/WDC)<br>`cpu` directive selects 6502 (default) or 65C02<br>Fixed slow assembly when file has a large number of local scopes<br>User guide: list all supported 6502 and 65C02 instructions |
 | 0.14 | Feb 25, 2023 | Fixed some undocumented 6502 instructions<br>Fixed macro expansion<br>`$.` prefix in .inf files<br>Listing: can show labels +1 or +2<br>User guide: using macros as user defined functions |
 | 0.13 | Feb 22, 2023 | Define symbols on the command line (-D)<br>Optional start offset and length for `incbin`<br>Directive `filler` sets fill value (default: 0) for unused bytes<br>Optional fill value (default: set by `filler`) for `skip` and `align` |
 | 0.12 | Feb 19, 2023 | Added verbose output option (-v)<br>Created snap package for Linux (amd64)<br>Fix: defined() checks validity of argument<br>Exclamation mark '!' forces absolute addressing |

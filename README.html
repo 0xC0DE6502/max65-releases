@@ -386,6 +386,9 @@ code {
     <a href="#advanced-macros">Advanced macros</a><br>
 <a href="#comparing-with-beebasm">Comparing with BeebAsm</a><br>
 <a href="#features-beyond-beebasm">Features beyond BeebAsm</a><br>
+<a href="#supported-instructions">Supported instructions</a><br>
+    <a href="#6502">6502</a><br>
+    <a href="#65c02">65C02</a><br>
 <a href="#quirks-and-tips">Quirks and tips</a><br>
 <a href="#download-and-install">Download and install</a><br>
     <a href="#windows">Windows</a><br>
@@ -610,6 +613,7 @@ bmi --- ; jump to anonymous label #1
 }
 print N         ; 32
 </div></code></pre>
+<p>Anonymous labels (<code>.</code>) can be defined anywhere, but you can only branch to those in the current scope.</p>
 <h3 id="operators">Operators</h3>
 <p>Operators in order of increasing precedence:</p>
 <table>
@@ -823,6 +827,10 @@ print N         ; 32
 <tr>
 <td><strong><code>align</code></strong> <em><code>expr_1 [, expr_2]</code></em></td>
 <td>Increment PC to next multiple of <em><code>expr_1</code></em>, e.g. <code>align 256</code> aligns PC to the next memory page. Optionally, fill the skipped bytes with <em><code>expr_2</code></em> (default: value set by <code>filler</code>)</td>
+</tr>
+<tr>
+<td><strong><code>cpu</code></strong> <em><code>expr</code></em></td>
+<td>Select allowed instruction set (default: 6502). If <em><code>expr</code></em> evaluates to 0, the <a href="#6502">6502 instruction set</a> is selected. For value 1, the <a href="#65c02">65C02 instruction set</a> is selected</td>
 </tr>
 <tr>
 <td><strong><code>elif</code></strong> <em><code>expr</code></em></td>
@@ -1046,10 +1054,6 @@ next
 <td><code>TIME$(&quot;&quot;)</code></td>
 </tr>
 <tr>
-<td><code>CPU</code></td>
-<td>N/A</td>
-</tr>
-<tr>
 <td><code>AND</code> (logical)</td>
 <td><code>and</code></td>
 </tr>
@@ -1227,17 +1231,31 @@ next
 </tr>
 </tbody>
 </table>
+<h2 id="supported-instructions">Supported instructions</h2>
+<h3 id="6502">6502</h3>
+<p><code>max65</code> supports all documented and undocumented 6502 instructions.</p>
+<p>Documented 6502 instructions:<br>
+<code>adc</code>, <code>and</code>, <code>asl</code>, <code>bcc</code>, <code>bcs</code>, <code>beq</code>, <code>bit</code>, <code>bmi</code>, <code>bne</code>, <code>bpl</code>, <code>brk</code>, <code>bvc</code>, <code>bvs</code>, <code>clc</code>, <code>cld</code>, <code>cli</code>, <code>clv</code>, <code>cmp</code>, <code>cpx</code>, <code>cpy</code>, <code>dec</code>, <code>dex</code>, <code>dey</code>, <code>eor</code>, <code>inc</code>, <code>inx</code>, <code>iny</code>, <code>jmp</code>, <code>jsr</code>, <code>lda</code>, <code>ldx</code>, <code>ldy</code>, <code>lsr</code>, <code>nop</code>, <code>ora</code>, <code>pha</code>, <code>php</code>, <code>pla</code>, <code>plp</code>, <code>rol</code>, <code>ror</code>, <code>rti</code>, <code>rts</code>, <code>sbc</code>, <code>sec</code>, <code>sed</code>, <code>sei</code>, <code>sta</code>, <code>stx</code>, <code>sty</code>, <code>tax</code>, <code>tay</code>, <code>tsx</code>, <code>txa</code>, <code>txs</code>, <code>tya</code>.</p>
+<p>Undocumented 6502 instructions:<br>
+<code>alr</code>, <code>anc</code>, <code>ane</code>, <code>arr</code>, <code>dcp</code>, <code>dop</code>, <code>isc</code>, <code>jam</code>, <code>las</code>, <code>lax</code>, <code>nop</code>, <code>rla</code>, <code>rra</code>, <code>sax</code>, <code>sbc</code>, <code>sbx</code>, <code>sha</code>, <code>shx</code>, <code>shy</code>, <code>slo</code>, <code>sre</code>, <code>tas</code>, <code>top</code>.</p>
+<h3 id="65c02">65C02</h3>
+<p><code>max65</code> supports all documented and undocumented 65C02 instructions.</p>
+<p>Documented 65C02 instructions:<br>
+All documented 6502 instructions and <code>bra</code>, <code>phx</code>, <code>phy</code>, <code>plx</code>, <code>ply</code>, <code>stz</code>, <code>trb</code>, <code>tsb</code>.
+But not <code>bbr</code>, <code>bbs</code>, <code>rmb</code>, <code>smb</code> (Rockwell, WDC) and <code>stp</code>, <code>wai</code> (WDC).</p>
+<p>Undocumented 65C02 instructions:<br>
+<code>dop</code>, <code>nop</code>, <code>top</code>.</p>
 <h2 id="quirks-and-tips">Quirks and tips</h2>
 <ul>
-<li>It is best to use forward slashes (<code>/</code>) only in file paths, e.g. <code>include &quot;src/prog.asm&quot;</code>, <code>incbin &quot;../data.bin&quot;</code>.</li>
+<li>It is best to use forward slashes (<code>/</code>) only in file paths, e.g. <code>include &quot;src/prog.asm&quot;</code>, <code>incbin &quot;../data.bin&quot;</code>. Using whitespace in file paths is discouraged.</li>
 <li>In an <code>if</code>-block or <code>elif</code>-block where the condition evaluates to zero (<code>FALSE</code>), chars and strings still need to be valid because of how the tokeniser works.</li>
-<li>Everything is case insensitive except for symbols which are case sensitive.</li>
+<li>Everything is case insensitive except for symbols which are case sensitive. For example, <code>guard</code>, <code>Guard</code> and <code>GUARD</code> all refer to the same directive. Similarly, <code>lda</code>, <code>LDA</code> and <code>LdA</code> all refer to the same instruction. But <code>sym1</code>, <code>Sym1</code> and <code>SYM1</code> are 3 different symbols.</li>
 </ul>
 <h2 id="download-and-install">Download and install</h2>
 <p>The latest release of <code>max65</code> can always be found on <a href="https://github.com/0xC0DE6502/max65-releases">GitHub</a>.</p>
 <p>64-bit binaries of <code>max65</code> are available for Windows and Linux (amd64). macOS is unsupported at the moment but may work with Wine and the Windows binary.</p>
 <h3 id="windows">Windows</h3>
-<p>Download the .zip file, extract it and optionally add <code>max65.exe</code> to your system path. The assembler is now ready for use. You will also find this user guide in various formats in the <code>max65</code> folder.</p>
+<p>Download the .zip file, extract it and optionally add the path to <code>max65.exe</code> to your system path. The assembler is now ready for use. You will also find this user guide in various formats in the <code>max65</code> folder.</p>
 <p>The assembler is compiled and tested on 64-bit Windows 11. It is fully portable as long as you keep <code>max65.exe</code> together with the accompanying <code>python*.dll</code> and <code>python*.zip</code> files.</p>
 <h3 id="linux">Linux</h3>
 <p><code>max65</code> is available in the <a href="https://snapcraft.io/max65">Snap Store</a>. Use <code>snap install max65</code> to install it. The assembler is now ready for use. You will also find this user guide in various formats in the <code>/snap/max65/current</code> folder.</p>
@@ -1253,6 +1271,11 @@ next
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>0.15</td>
+<td>Feb 28, 2023</td>
+<td>Added 65C02 instruction set (not Rockwell/WDC)<br><code>cpu</code> directive selects 6502 (default) or 65C02<br>Fixed slow assembly when file has a large number of local scopes<br>User guide: list all supported 6502 and 65C02 instructions</td>
+</tr>
 <tr>
 <td>0.14</td>
 <td>Feb 25, 2023</td>
