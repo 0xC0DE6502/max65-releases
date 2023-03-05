@@ -393,6 +393,7 @@ code {
 <a href="#download-and-install">Download and install</a><br>
     <a href="#windows">Windows</a><br>
     <a href="#linux">Linux</a><br>
+    <a href="#macos">macOS</a><br>
 <a href="#changelog">Changelog</a><br>
 <a href="#disclaimer">Disclaimer</a><br>
 <a href="#contact">Contact</a></p>
@@ -404,7 +405,7 @@ code {
   OFFSET=LOAD_ADDR-RUN_ADDR   ; displacement between main program and relocator
 
   \ define zeropage variables
-  org 0                       ; start assembling at address $0000
+  org 0                       ; start assembling at address $0000 (default)
 .sin skip 2                   ; reserve 2 bytes for zeropage variable 'sin'
 
   \ main program
@@ -440,7 +441,7 @@ code {
 <blockquote>
 <p>I did not write <code>max65</code> because there is a shortage of 65xx assemblers -- far from it. I wrote <code>max65</code> because it seemed like a fun and challenging project. And I was right!</p>
 </blockquote>
-<p><code>max65</code> is a two-pass assembler. In pass 1 source files are tokenised and tokens are parsed to internal commands. In pass 2 these internal commands are translated to machine code and data. You can then save any part(s) of the 64Kb address space to your computer as raw binary file(s).</p>
+<p><code>max65</code> is a two-pass assembler. In pass 1 source files are tokenised and tokens are parsed to internal commands. In pass 2 these internal commands are translated to machine code and data. You can then save any part(s) of the 64Kb memory map to your computer as raw binary file(s).</p>
 <p>A source file is a plain text file consisting of 65xx instructions, assembler directives, label definitions and symbol assignments. Each element may be put on a separate line. A single line may also contain multiple elements, separated by colons (<code>:</code>). A source file also usually contains whitespace and comments.</p>
 <p>This example shows all elements in a source file:</p>
 <pre class="hljs"><code><div>  org &amp;e00       ; assembler directive
@@ -511,14 +512,14 @@ code {
 </li>
 </ul>
 <h3 id="symbols">Symbols</h3>
-<p>Symbols are used to name things in a source file. The name of a symbol is case sensitive and consists of any mix of digits, letters and underscores. It must not start with a digit though. Examples of valid symbol names are: <code>_</code>, <code>Lives</code>, <code>data_Table4</code>. A symbol has a <a href="#symbol-scopes">specific scope</a> in which it is valid and it (eventually) always refers to an integer, float or string. There are some <a href="#predefined-global-symbols">predefined global symbols</a>.</p>
+<p>Symbols are used to name things in a source file. The name of a symbol is case sensitive and consists of any mix of digits, letters and underscores. It must not start with a digit and it optionally ends with a <code>%</code>. Examples of valid symbol names are: <code>_</code>, <code>Lives%</code>, <code>data_Table4</code>. A symbol has a <a href="#symbol-scopes">specific scope</a> in which it is valid and it (eventually) always refers to an integer, float or string. There are some <a href="#predefined-global-symbols">predefined global symbols</a>.</p>
 <blockquote>
 <p>Once defined, the value of a symbol cannot be changed by the programmer.</p>
 </blockquote>
 <p>A symbol is defined in 1 of 5 ways:</p>
 <ol>
 <li>
-<p><strong>Label definition</strong>. A label is defined by a period (<code>.</code>) directly followed by a symbol name, e.g. <code>.sine256</code>, <code>.current_level</code>. The symbol is added to the internal nametable at the current scope level, unless it already exists there. Its value is set to the current logical program counter (<code>@</code>) which is a 16-bit integer.<br>
+<p><strong>Label definition</strong>. A label is defined by a period (<code>.</code>) directly followed by a symbol name, e.g. <code>.sine256</code>, <code>.current_level%</code>. The symbol is added to the internal nametable at the current scope level, unless it already exists there. Its value is set to the current logical program counter (<code>@</code>) which is a 16-bit integer.<br>
 You can also define anonymous (unnamed) labels by simply using a period without name:</p>
 <pre class="hljs"><code><div>.       ; anonymous label #1
 tya
@@ -534,13 +535,13 @@ bmi --- ; jump to anonymous label #1
 </div></code></pre>
 </li>
 <li>
-<p><strong>Symbol assignment</strong>. An assignment consists of a symbol name, followed by an equal sign (<code>=</code>), and an expression. Examples: <code>N=3</code>, <code>start_addr=&amp;5800+N*&amp;140</code>. The expression stored with the symbol in the nametable can contain forward references but must eventually evaluate to an integer, float or string.</p>
+<p><strong>Symbol assignment</strong>. An assignment consists of a symbol name, followed by an equal sign (<code>=</code>), and an expression. Examples: <code>N%=3</code>, <code>start_addr=&amp;5800+N%*&amp;140</code>. The expression stored with the symbol in the nametable can contain forward references but must eventually evaluate to an integer, float or string.</p>
 </li>
 <li>
 <p><strong>Assembler directive <code>for</code></strong>. A <code>for...next</code> loop defines a local scope for every cycle of the loop with the <code>for</code>-loop variable (integer or float) as a local symbol. Example: <code>for n, 1, 10 ... next</code>. The body of the loop is assembled 10 times within the context of that local scope. The local symbol <code>n</code> increments from 1 to 10 during that time.</p>
 </li>
 <li>
-<p><strong>Macro definition</strong>. When you define a macro, e.g. <code>macro add num1, num2 ... endmacro</code>, a special global symbol based on the macro name is created in the internal nametable, unless a macro with that exact name already exists. Macro names never clash with other symbols and also don't evaluate to any value.</p>
+<p><strong>Macro definition</strong>. When you define a macro, e.g. <code>macro add num1, num2 ... endmacro</code>, a special global symbol based on the macro name is created in the internal nametable (<code>@add</code> in this example), unless a macro with that name already exists. Macro names therefore never clash with other symbols and also don't evaluate to any value by itself.</p>
 </li>
 <li>
 <p><strong>Macro call</strong>. When you invoke a previously defined macro, e.g. <code>add 12, 34</code>, a local scope is created with local symbols that are named after the parameters (if any) in the macro definition: <code>num1</code> and <code>num2</code> in this example. Their values are set to the macro call arguments, <code>12</code> and <code>34</code> in this example. The macro body is then assembled within the context of that local scope.</p>
@@ -807,7 +808,7 @@ print N         ; 32
 </tr>
 <tr>
 <td><code>defined()</code></td>
-<td>Check if symbol is defined (returns <code>TRUE</code>) or not (returns <code>FALSE</code>), e.g. <code>if not defined(&quot;SCRN&quot;) ... endif</code></td>
+<td>Check if symbol is defined (returns <code>TRUE</code>) or not (returns <code>FALSE</code>), e.g. <code>if not defined(&quot;SCRN&quot;) ... endif</code> or <code>if defined(&quot;@my_macro&quot;) ... endif</code></td>
 </tr>
 </tbody>
 </table>
@@ -825,8 +826,8 @@ print N         ; 32
 </thead>
 <tbody>
 <tr>
-<td><strong><code>align</code></strong> <em><code>expr_1 [, expr_2]</code></em></td>
-<td>Increment PC to next multiple of <em><code>expr_1</code></em>, e.g. <code>align 256</code> aligns PC to the next memory page. Optionally, fill the skipped bytes with <em><code>expr_2</code></em> (default: value set by <code>filler</code>)</td>
+<td><strong><code>align</code></strong> <em><code>expr</code></em></td>
+<td>Increment PC to next multiple of <em><code>expr</code></em>, e.g. <code>align 256</code> aligns PC to the next memory page</td>
 </tr>
 <tr>
 <td><strong><code>cpu</code></strong> <em><code>expr</code></em></td>
@@ -857,10 +858,6 @@ print N         ; 32
 <td>Equivalent to <code>equb</code></td>
 </tr>
 <tr>
-<td><strong><code>filler</code></strong> <em><code>expr</code></em></td>
-<td>Set fill value (default: 0) for unused bytes to <em><code>expr</code></em>, e.g. <code>filler &amp;ff</code>. Used by <code>align</code>, <code>skip</code> and <code>save</code></td>
-</tr>
-<tr>
 <td><strong><code>for</code></strong> <em><code>sym</code></em><code>,</code> <em><code>expr_1</code></em><code>,</code> <em><code>expr_2 [, expr_3] ...</code></em> <strong><code>next</code></strong></td>
 <td>Assemble a block of code/data one or more times. The loop counter <em><code>sym</code></em> is a local symbol which changes from <em><code>expr_1</code></em> to <em><code>expr_2</code></em> (inclusive) in steps of <em><code>expr_3</code></em> (-1 or 1 if unspecified). Examples: <code>for n, 0, 9: equb n: next</code>. Or: <code>for f, 3.5, -1.5, -0.75: print f: next</code></td>
 </tr>
@@ -889,8 +886,8 @@ print N         ; 32
 <td>Set PC (where code/data is assembled) to <em><code>expr_1</code></em>. Also set the logical PC (on which labels are based) to <em><code>expr_2</code></em>. If <em><code>expr_2</code></em> is not specified, the logical PC will be equal to PC. Examples: <code>org $1000</code>. Or: <code>org $1000, $2000</code></td>
 </tr>
 <tr>
-<td><strong><code>skip</code></strong> <em><code>expr_1 [, expr_2]</code></em></td>
-<td>Increment PC by <em><code>expr_1</code></em> bytes, e.g. <code>skip 16</code>. Optionally, fill the skipped bytes with <em><code>expr_2</code></em> (default: value set by <code>filler</code>)</td>
+<td><strong><code>skip</code></strong> <em><code>expr</code></em></td>
+<td>Increment PC by <em><code>expr</code></em> bytes, e.g. <code>skip 16</code></td>
 </tr>
 </tbody>
 </table>
@@ -908,6 +905,18 @@ print N         ; 32
 <td>Evaluate one or more arguments and trigger an error for the first expression (in order of appearance) that is zero (<code>FALSE</code>). Example: <code>assert N&lt;128, P%&lt;$1000</code></td>
 </tr>
 <tr>
+<td><strong><code>canvas</code></strong> <em><code>expr</code></em></td>
+<td>Set fill value (default: 0) for unused bytes to <em><code>expr</code></em>, e.g. <code>canvas &amp;ff</code>. Used by <code>save</code> and <code>copyblock</code></td>
+</tr>
+<tr>
+<td><strong><code>clear</code></strong> <em><code>expr_1, expr_2</code></em></td>
+<td>Clear a block of the memory map from <em><code>expr_1</code></em> to <em><code>expr_2</code></em> (exclusive), which allows you to assemble over it again. Does not clear any address guards set. Example: <code>clear &amp;1000, &amp;2000</code></td>
+</tr>
+<tr>
+<td><strong><code>copyblock</code></strong> <em><code>expr_1, expr_2, expr_3</code></em></td>
+<td>Copy a block of the memory map, ranging from <em><code>expr_1</code></em> to <em><code>expr_2</code></em> (exlusive), to destination <em><code>expr_3</code></em>. Example: <code>copyblock &amp;1000, &amp;2000, &amp;2200</code>. Overwriting existing code/data is not allowed. Use <code>clear</code> first if necessary. Parts of the memory block with no code or data are filled with the fill value (default: 0) set by <code>canvas</code></td>
+</tr>
+<tr>
 <td><strong><code>error</code></strong> <em><code>[expr_1, ..., expr_n]</code></em></td>
 <td>Trigger an error after printing <em><code>expr_1</code></em>, ..., <em><code>expr_n</code></em> to the standard error file (stderr). Example: <code>if N&gt;=128: error &quot;Expected N&lt;128, but N=&quot;, N: endif</code></td>
 </tr>
@@ -918,6 +927,10 @@ print N         ; 32
 <tr>
 <td><strong><code>equw</code></strong> <em><code>expr_1 [, expr_2, ..., expr_n]</code></em></td>
 <td>Insert one or more words (16-bit integers), e.g. <code>equw $C0DE</code></td>
+</tr>
+<tr>
+<td><strong><code>export</code></strong> <em><code>expr [, sym_1, ..., sym_n]</code></em></td>
+<td>Export globals <em><code>sym_1</code></em>, ..., <em><code>sym_n</code></em> (named global labels, global constants and macros) to a plain text file named <em><code>expr</code></em>. Example: <code>export &quot;inc/globals.txt&quot;, code_start, code_end, @my_macro, N_LIVES%</code>. Export ALL globals if no symbols are specified, e.g. <code>export &quot;inc/globals.txt&quot;</code>. To import these globals elsewhere, simply use the <code>include</code> directive</td>
 </tr>
 <tr>
 <td><strong><code>guard</code></strong> <em><code>[expr_1, ..., expr_n]</code></em></td>
@@ -933,7 +946,7 @@ print N         ; 32
 </tr>
 <tr>
 <td><strong><code>save</code></strong> <em><code>expr_1, expr_2, expr_3 [, expr_4 [, expr_5]]</code></em></td>
-<td>Save a code/data block from the 64Kb address space to a raw binary file named <em><code>expr_1</code></em>. The block starts at <em><code>expr_2</code></em> and ends at <em><code>expr_3</code></em> (exclusive). The optional execution address <em><code>expr_4</code></em> and load address <em><code>expr_5</code></em> are used in the accompanying .inf file. When not specified, these are equal to <em><code>expr_2</code></em>. Example: <code>save &quot;CODE&quot;, $1000, $2000, $f25, $e00</code>. Parts of the memory map with no code or data are filled with the fill value (default: 0) set by <code>filler</code></td>
+<td>Save a code/data block from the 64Kb memory map to a raw binary file named <em><code>expr_1</code></em>. The block starts at <em><code>expr_2</code></em> and ends at <em><code>expr_3</code></em> (exclusive). The optional execution address <em><code>expr_4</code></em> and load address <em><code>expr_5</code></em> are used in the accompanying .inf file. When not specified, these are equal to <em><code>expr_2</code></em>. Example: <code>save &quot;CODE&quot;, $1000, $2000, $f25, $e00</code>. Parts of the memory block with no code or data are filled with the fill value (default: 0) set by <code>canvas</code></td>
 </tr>
 </tbody>
 </table>
@@ -1038,8 +1051,8 @@ next
 <td><code>if not defined(&quot;N&quot;): N=3: endif</code></td>
 </tr>
 <tr>
-<td><code>COPYBLOCK $1000, $1100, $500</code></td>
-<td><code>org $500, $1000</code></td>
+<td><code>COPYBLOCK</code></td>
+<td>Overwriting code/data at destination not allowed</td>
 </tr>
 <tr>
 <td><code>x^y</code> (raise to the power of)</td>
@@ -1091,7 +1104,7 @@ next
 </tr>
 <tr>
 <td><code>CLEAR</code></td>
-<td><code>guard</code> (without args) clears all guards only</td>
+<td>Doesn't clear any address guards set</td>
 </tr>
 <tr>
 <td><code>MAPCHAR</code></td>
@@ -1199,7 +1212,7 @@ next
 </tr>
 <tr>
 <td><code>defined(&quot;N&quot;)</code></td>
-<td><code>TRUE</code> if symbol <code>N</code> is defined, <code>FALSE</code> otherwise</td>
+<td><code>TRUE</code> if symbol <code>N</code> is defined, <code>FALSE</code> otherwise. Can also be used for macros, e.g. <code>if defined(&quot;@my_macro&quot;) ... endif</code></td>
 </tr>
 <tr>
 <td><code>guard</code></td>
@@ -1222,12 +1235,16 @@ next
 <td>When an integer is expected, a float number is automatically truncated (not rounded) to an integer. Large integers and negative integers are allowed for 65xx instructions and directives like <code>equb</code>/<code>equw</code>/<code>equd</code>. E.g. <code>lda #-2</code> is equal to <code>lda #&amp;fe</code>, <code>ldx #&amp;123</code> is equal to <code>ldx #&amp;23</code> (lower 8 bits), <code>equw $123456</code> is equal to <code>equw $3456</code> (lower 16 bits)</td>
 </tr>
 <tr>
-<td><code>filler</code></td>
-<td>The <code>filler</code> directive sets the fill value (default: 0) used for unused bytes. Used by <code>skip</code> and <code>align</code> to fill the skipped bytes. And by <code>save</code> to fill areas without code/data</td>
+<td><code>canvas</code></td>
+<td>The <code>canvas</code> directive sets the fill value (default: 0) used for unused bytes. Used by <code>save</code> and <code>copyblock</code> to fill areas without code/data</td>
 </tr>
 <tr>
 <td>user defined functions</td>
 <td>Sort of. See <a href="#advanced-macros">Advanced macros</a></td>
+</tr>
+<tr>
+<td><code>export</code></td>
+<td>Export (a selection of) globals (named global labels, global constants and macros) to a plain text file, that can be <code>include</code>d again elsewhere</td>
 </tr>
 </tbody>
 </table>
@@ -1250,10 +1267,12 @@ But not <code>bbr</code>, <code>bbs</code>, <code>rmb</code>, <code>smb</code> (
 <li>It is best to use forward slashes (<code>/</code>) only in file paths, e.g. <code>include &quot;src/prog.asm&quot;</code>, <code>incbin &quot;../data.bin&quot;</code>. Using whitespace in file paths is discouraged.</li>
 <li>In an <code>if</code>-block or <code>elif</code>-block where the condition evaluates to zero (<code>FALSE</code>), chars and strings still need to be valid because of how the tokeniser works.</li>
 <li>Everything is case insensitive except for symbols which are case sensitive. For example, <code>guard</code>, <code>Guard</code> and <code>GUARD</code> all refer to the same directive. Similarly, <code>lda</code>, <code>LDA</code> and <code>LdA</code> all refer to the same instruction. But <code>sym1</code>, <code>Sym1</code> and <code>SYM1</code> are 3 different symbols.</li>
+<li>Use <code>canvas</code> and <code>copyblock</code> to fill a part of the memory map. Example: <code>canvas &amp;55: copyblock &amp;4000, &amp;4300, &amp;4000</code> (assuming no code/data was in this memory block yet).</li>
+<li>Assembling something like <code>if not defined(&quot;S&quot;): S=123: endif</code> will always generate the warning &quot;value for 'if' directive has changed between passes&quot;. You can safely ignore that.</li>
 </ul>
 <h2 id="download-and-install">Download and install</h2>
 <p>The latest release of <code>max65</code> can always be found on <a href="https://github.com/0xC0DE6502/max65-releases">GitHub</a>.</p>
-<p>64-bit binaries of <code>max65</code> are available for Windows and Linux (amd64). macOS is unsupported at the moment but may work with Wine and the Windows binary.</p>
+<p>64-bit binaries of <code>max65</code> are available for Windows and Linux (amd64). On macOS (and Linux as well) you can run <code>max65</code> by using Wine and the Windows binary.</p>
 <h3 id="windows">Windows</h3>
 <p>Download the .zip file, extract it and optionally add the path to <code>max65.exe</code> to your system path. The assembler is now ready for use. You will also find this user guide in various formats in the <code>max65</code> folder.</p>
 <p>The assembler is compiled and tested on 64-bit Windows 11. It is fully portable as long as you keep <code>max65.exe</code> together with the accompanying <code>python*.dll</code> and <code>python*.zip</code> files.</p>
@@ -1261,6 +1280,12 @@ But not <code>bbr</code>, <code>bbs</code>, <code>rmb</code>, <code>smb</code> (
 <p><code>max65</code> is available in the <a href="https://snapcraft.io/max65">Snap Store</a>. Use <code>snap install max65</code> to install it. The assembler is now ready for use. You will also find this user guide in various formats in the <code>/snap/max65/current</code> folder.</p>
 <p>Alternatively, download the snap package from <a href="https://github.com/0xC0DE6502/max65-releases">GitHub</a> and use <code>snap install &lt;filename&gt; --dangerous</code> to install it.</p>
 <p>The Windows binary is also known to work on Ubuntu 20.04.5 with Wine 5.0-3 and on Ubuntu 22.04.1 with Wine 6.0.3. I am confident that other combinations of Linux and Wine will work equally well.</p>
+<h3 id="macos">macOS</h3>
+<p>The Windows binary has been tested and found working on macOS 13 (Ventura) with Wine 8.0. Again, I am confident that other combinations of macOS and Wine may work too.</p>
+<p>For the record, I used <code>max65</code> on the following configuration: fresh install of macOS 13 (Ventura, x86_64), Xcode Command-line Tools 14.3, Homebrew 4.0.4 and Wine 8.0. This is how to install Wine and run <code>max65</code> (ignore Wine preloader warnings):</p>
+<pre class="hljs"><code><div>brew install ––cask ––no-quarantine wine-stable 
+WINEDEBUG=-all wine64 max65.exe 
+</div></code></pre>
 <h2 id="changelog">Changelog</h2>
 <table>
 <thead>
@@ -1271,6 +1296,11 @@ But not <code>bbr</code>, <code>bbs</code>, <code>rmb</code>, <code>smb</code> (
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>0.16</td>
+<td>Mar 5, 2023</td>
+<td>Export (a selection of) globals with the <code>export</code> directive<br><code>clear</code> directive clears block of code/data in memory map<br><code>copyblock</code> directive copies block of code/data<br><code>skip</code> and <code>align</code> directives no longer fill the skipped bytes<br><code>filler</code> directive is renamed to <code>canvas</code><br><code>%</code> is optionally allowed at the end of a symbol name<br>User guide: how to run <code>max65</code> in macOS + Wine</td>
+</tr>
 <tr>
 <td>0.15</td>
 <td>Feb 28, 2023</td>
