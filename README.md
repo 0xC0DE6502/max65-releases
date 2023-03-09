@@ -33,6 +33,7 @@ The entire `max65` package is Copyright &#169; 2022-2023 [0xC0DE](https://twitte
 &nbsp;&nbsp;&nbsp;&nbsp;[Windows](#windows)  
 &nbsp;&nbsp;&nbsp;&nbsp;[Linux](#linux)  
 &nbsp;&nbsp;&nbsp;&nbsp;[macOS](#macos)  
+&nbsp;&nbsp;&nbsp;&nbsp;[Syntax highlighting](#syntax-highlighting)  
 [Changelog](#changelog)  
 [Disclaimer](#disclaimer)  
 [Contact](#contact)  
@@ -114,7 +115,7 @@ In some cases `max65` needs to make an educated guess in pass 1 about forward re
 
 Here is a brief summary of how to invoke `max65`:
 ```
-max65 [-D <sym>=<expr>] [-h] [-l <listfile>] [-v] <infile>
+max65 [-D <sym>=<expr>] [-h] [-l <listfile>] [-O] [-v] <infile>
 ```
 
 | Option | Description |
@@ -123,15 +124,16 @@ max65 [-D <sym>=<expr>] [-h] [-l <listfile>] [-v] <infile>
 | `-D <sym>=<expr>` | Define symbol with the given expression |
 | `-h` | Show a help message and exit |
 | `-l <listfile>` | Create a listing file |
+| `-O` | Show potential code optimisations |
 | `-v` | Enable verbose output |
 
-Example command-line: `max65 -D DBG=1 -v -D MSG=\"hello\" main.6502 -l listing.txt`.
+Example command-line: `max65 -D DBG=1 -v -D MSG=\"hello\" main.6502 -l listing.txt -O`.
 
 ## Error and warning messages
 
 When all goes well `max65` happily assembles the source file and exits with exit code 0 (success). However, when `max65` fails to assemble the source file, an error message is written to the standard error file (stderr) and the assembler exits with exit code 1 (failure). An error message shows the source filename, line number and cause of the error. Example of a typical error message: `*** error in pass 2: file main.6502, line 10: operator '/' doesn't work on strings`.
 
-In a few cases `max65` writes a warning message to stderr, but continues assembling your program. Example of a typical warning message: `*** warning in pass 2: file main.6502, line 6: instruction 'lda' can be assembled 1 byte shorter in zeropage addressing mode`.
+In a few cases `max65` writes a warning message to stderr, but continues assembling your program. Example of a typical warning message: `*** warning in pass 2: file main.6502, line 6: instruction 'lda' can be assembled 1 byte shorter in zeropage addressing mode`. Set the warning level with the `warn` directive.
 
 ## Expressions
 
@@ -312,7 +314,7 @@ Directives that evaluate their arguments in pass 2:
 |-|-|
 | **`assert`** _`expr_1 [, expr_2, ..., expr_n]`_ | Evaluate one or more arguments and trigger an error for the first expression (in order of appearance) that is zero (`FALSE`). Example: `assert N<128, P%<$1000` |
 | **`canvas`** _`expr`_ | Set fill value (default: 0) for unused bytes to _`expr`_, e.g. `canvas &ff`. Used by `save` and `copyblock` |
-| **`clear`** _`expr_1, expr_2`_ | Clear a block of the memory map from _`expr_1`_ to _`expr_2`_ (exclusive), which allows you to assemble over it again. Does not clear any address guards set. Example: `clear &1000, &2000` |
+| **`clear`** _`expr_1, expr_2`_ | Clear a block of the memory map from _`expr_1`_ to _`expr_2`_ (exclusive), which allows you to assemble over it again. Does NOT clear any address guards set or any labels defined in that block. Example: `clear &1000, &2000` |
 | **`copyblock`** _`expr_1, expr_2, expr_3`_ | Copy a block of the memory map, ranging from _`expr_1`_ to _`expr_2`_ (exlusive), to destination _`expr_3`_. Example: `copyblock &1000, &2000, &2200`. Overwriting existing code/data is not allowed. Use `clear` first if necessary. Parts of the memory block with no code or data are filled with the fill value (default: 0) set by `canvas` |
 | **`error`** _`[expr_1, ..., expr_n]`_ | Trigger an error after printing _`expr_1`_, ..., _`expr_n`_ to the standard error file (stderr). Example: `if N>=128: error "Expected N<128, but N=", N: endif` |
 | **`equd`** _`expr_1 [, expr_2, ..., expr_n]`_ | Insert one or more double words (32-bit integers), e.g. `equd $C0DE6502` |
@@ -322,6 +324,7 @@ Directives that evaluate their arguments in pass 2:
 | **`print`** _`[expr_1, ..., expr_n]`_ | Print zero or more expressions _`expr_1`_, ..., _`expr_n`_ to the standard output file (stdout) and finish with a newline. When no arguments are given, just print a newline |
 | **`randomize`** _`expr`_ | Seed the random number generator with _`expr`_, e.g. `randomize 12345`. _`expr`_ can be any integer, float or string |
 | **`save`** _`expr_1, expr_2, expr_3 [, expr_4 [, expr_5]]`_ | Save a code/data block from the 64Kb memory map to a raw binary file named _`expr_1`_. The block starts at _`expr_2`_ and ends at _`expr_3`_ (exclusive). The optional execution address _`expr_4`_ and load address _`expr_5`_ are used in the accompanying .inf file. When not specified, these are equal to _`expr_2`_. Example: `save "CODE", $1000, $2000, $f25, $e00`. Parts of the memory block with no code or data are filled with the fill value (default: 0) set by `canvas` |
+| **`warn`** _`[expr]`_ |  Set warning level. If _`expr`_ evaluates to 0, no warnings are shown. For value 1 (default), warnings are shown. `warn` without arguments restores the previous warning level |
 
 ## Macros
 
@@ -447,6 +450,7 @@ next
 | Feature | Description |
 |-|-|
 | Undocumented 6502 instructions | `alr`, `anc`, `ane`, `arr`, `dcp`, `dop`, `isc`, `jam`, `las`, `lax`, `nop`, `rla`, `rra`, `sax`, `sbc`, `sbx`, `sha`, `shx`, `shy`, `slo`, `sre`, `tas`, `top` |
+| Undocumented 65C02 instructions | `dop`, `nop`, `top` |
 | `N^=3` | Define N in parent scope (and in current scope) |
 | `N*=3` | Define N in global scope |
 | `&C0_DE`, `$6'502`, `1'234`, `3.14_15`, `%00_10'00` | Digit grouping with `_` and `'` for all numbers, not just binary |
@@ -461,13 +465,14 @@ next
 | `error` | Accepts zero or more arguments so it works similar to the `print` directive |
 | `defined("N")` | `TRUE` if symbol `N` is defined, `FALSE` otherwise. Can also be used for macros, e.g. `if defined("@my_macro") ... endif` |
 | `guard` | The `guard` directive sets one or more guards on the supplied memory addresses. When no arguments are given, all guards are cleared |
-| zeropage vs absolute | `max65` issues a friendly warning when an instruction could have used zeropage addressing mode (saving 1 byte) |
+| zeropage vs absolute | `max65` issues a friendly warning (depending on the warning level set by `warn`) when an instruction could have used zeropage addressing mode (saving 1 byte) |
 | forced absolute addressing | Place an exclamation mark (`!`) after a 65xx instruction to force absolute instead of zeropage addressing mode, e.g. `lda! 0` assembles to `ad 00 00` instead of `a5 00` |
 | `.` (anonymous labels) | Use `.` to define unnamed labels. Relative branch instructions can jump backward or forward to them, e.g. `bne -`, or `bpl ++` |
 | numbers | When an integer is expected, a float number is automatically truncated (not rounded) to an integer. Large integers and negative integers are allowed for 65xx instructions and directives like `equb`/`equw`/`equd`. E.g. `lda #-2` is equal to `lda #&fe`, `ldx #&123` is equal to `ldx #&23` (lower 8 bits), `equw $123456` is equal to `equw $3456` (lower 16 bits) |
 | `canvas` | The `canvas` directive sets the fill value (default: 0) used for unused bytes. Used by `save` and `copyblock` to fill areas without code/data |
 | user defined functions | Sort of. See [Advanced macros](#advanced-macros)
 | `export` | Export (a selection of) globals (named global labels, global constants and macros) to a plain text file, that can be `include`d again elsewhere |
+| `warn` | Set warning level. Default: 1 (show warnings) |
 
 ## Supported instructions
 
@@ -498,7 +503,7 @@ Undocumented 65C02 instructions:
 * In an `if`-block or `elif`-block where the condition evaluates to zero (`FALSE`), chars and strings still need to be valid because of how the tokeniser works. 
 * Everything is case insensitive except for symbols which are case sensitive. For example, `guard`, `Guard` and `GUARD` all refer to the same directive. Similarly, `lda`, `LDA` and `LdA` all refer to the same instruction. But `sym1`, `Sym1` and `SYM1` are 3 different symbols.
 * Use `canvas` and `copyblock` to fill a part of the memory map. Example: `canvas &55: copyblock &4000, &4300, &4000` (assuming no code/data was in this memory block yet).
-* Assembling something like `if not defined("S"): S=123: endif` will always generate the warning "value for 'if' directive has changed between passes". You can safely ignore that. 
+* Assembling something like `if not defined("S"): S=123: endif` will always generate the warning "value for 'if' directive has changed between passes". You can safely ignore that or disable it (locally) with the `warn` directive, e.g. `warn 0: if not defined("S"): S=123: endif: warn`. 
 
 ## Download and install
 
@@ -530,10 +535,15 @@ brew install ––cask ––no-quarantine wine-stable
 WINEDEBUG=-all wine64 max65.exe 
 ```
 
+### Syntax highlighting
+
+You can use [this extension](https://github.com/0xC0DE6502/max65-syntax-highlighting-releases) for Visual Studio Code to enable syntax highlighting for `max65` compatible source files.
+
 ## Changelog
 
 | Version | Date | Changes |
 |-|-|-|
+| 0.17 | Mar 9, 2023 | Added `-O` option to show potential code optimisations<br>`warn` directive sets warning level<br>User guide: link to VSCode extension for `max65` syntax highlighting |
 | 0.16 | Mar 5, 2023 | Export (a selection of) globals with the `export` directive<br>`clear` directive clears block of code/data in memory map<br>`copyblock` directive copies block of code/data<br>`skip` and `align` directives no longer fill the skipped bytes<br>`filler` directive is renamed to `canvas`<br>`%` is optionally allowed at the end of a symbol name<br>User guide: how to run `max65` in macOS + Wine |
 | 0.15 | Feb 28, 2023 | Added 65C02 instruction set (not Rockwell/WDC)<br>`cpu` directive selects 6502 (default) or 65C02<br>Fixed slow assembly when file has a large number of local scopes<br>User guide: list all supported 6502 and 65C02 instructions |
 | 0.14 | Feb 25, 2023 | Fixed some undocumented 6502 instructions<br>Fixed macro expansion<br>`$.` prefix in .inf files<br>Listing: can show labels +1 or +2<br>User guide: using macros as user defined functions |

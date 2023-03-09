@@ -394,6 +394,7 @@ code {
     <a href="#windows">Windows</a><br>
     <a href="#linux">Linux</a><br>
     <a href="#macos">macOS</a><br>
+    <a href="#syntax-highlighting">Syntax highlighting</a><br>
 <a href="#changelog">Changelog</a><br>
 <a href="#disclaimer">Disclaimer</a><br>
 <a href="#contact">Contact</a></p>
@@ -460,7 +461,7 @@ code {
 <p>In some cases <code>max65</code> needs to make an educated guess in pass 1 about forward references, especially when the choice between zeropage and absolute addressing modes needs to be made. It is therefore recommended (but not required) to define zeropage labels as early as possible in your program.</p>
 <h2 id="command-line-options">Command-line options</h2>
 <p>Here is a brief summary of how to invoke <code>max65</code>:</p>
-<pre class="hljs"><code><div>max65 [-D &lt;sym&gt;=&lt;expr&gt;] [-h] [-l &lt;listfile&gt;] [-v] &lt;infile&gt;
+<pre class="hljs"><code><div>max65 [-D &lt;sym&gt;=&lt;expr&gt;] [-h] [-l &lt;listfile&gt;] [-O] [-v] &lt;infile&gt;
 </div></code></pre>
 <table>
 <thead>
@@ -487,15 +488,19 @@ code {
 <td>Create a listing file</td>
 </tr>
 <tr>
+<td><code>-O</code></td>
+<td>Show potential code optimisations</td>
+</tr>
+<tr>
 <td><code>-v</code></td>
 <td>Enable verbose output</td>
 </tr>
 </tbody>
 </table>
-<p>Example command-line: <code>max65 -D DBG=1 -v -D MSG=\&quot;hello\&quot; main.6502 -l listing.txt</code>.</p>
+<p>Example command-line: <code>max65 -D DBG=1 -v -D MSG=\&quot;hello\&quot; main.6502 -l listing.txt -O</code>.</p>
 <h2 id="error-and-warning-messages">Error and warning messages</h2>
 <p>When all goes well <code>max65</code> happily assembles the source file and exits with exit code 0 (success). However, when <code>max65</code> fails to assemble the source file, an error message is written to the standard error file (stderr) and the assembler exits with exit code 1 (failure). An error message shows the source filename, line number and cause of the error. Example of a typical error message: <code>*** error in pass 2: file main.6502, line 10: operator '/' doesn't work on strings</code>.</p>
-<p>In a few cases <code>max65</code> writes a warning message to stderr, but continues assembling your program. Example of a typical warning message: <code>*** warning in pass 2: file main.6502, line 6: instruction 'lda' can be assembled 1 byte shorter in zeropage addressing mode</code>.</p>
+<p>In a few cases <code>max65</code> writes a warning message to stderr, but continues assembling your program. Example of a typical warning message: <code>*** warning in pass 2: file main.6502, line 6: instruction 'lda' can be assembled 1 byte shorter in zeropage addressing mode</code>. Set the warning level with the <code>warn</code> directive.</p>
 <h2 id="expressions">Expressions</h2>
 <p><code>max65</code> can handle arbitrarily complex expressions in directives, symbol assignments or 65xx instructions. Expressions consist of literals, symbols, operators and built-in functions. Each expression must eventually evaluate to an integer, float or string in pass 2.</p>
 <h3 id="literals">Literals</h3>
@@ -910,7 +915,7 @@ print N         ; 32
 </tr>
 <tr>
 <td><strong><code>clear</code></strong> <em><code>expr_1, expr_2</code></em></td>
-<td>Clear a block of the memory map from <em><code>expr_1</code></em> to <em><code>expr_2</code></em> (exclusive), which allows you to assemble over it again. Does not clear any address guards set. Example: <code>clear &amp;1000, &amp;2000</code></td>
+<td>Clear a block of the memory map from <em><code>expr_1</code></em> to <em><code>expr_2</code></em> (exclusive), which allows you to assemble over it again. Does NOT clear any address guards set or any labels defined in that block. Example: <code>clear &amp;1000, &amp;2000</code></td>
 </tr>
 <tr>
 <td><strong><code>copyblock</code></strong> <em><code>expr_1, expr_2, expr_3</code></em></td>
@@ -947,6 +952,10 @@ print N         ; 32
 <tr>
 <td><strong><code>save</code></strong> <em><code>expr_1, expr_2, expr_3 [, expr_4 [, expr_5]]</code></em></td>
 <td>Save a code/data block from the 64Kb memory map to a raw binary file named <em><code>expr_1</code></em>. The block starts at <em><code>expr_2</code></em> and ends at <em><code>expr_3</code></em> (exclusive). The optional execution address <em><code>expr_4</code></em> and load address <em><code>expr_5</code></em> are used in the accompanying .inf file. When not specified, these are equal to <em><code>expr_2</code></em>. Example: <code>save &quot;CODE&quot;, $1000, $2000, $f25, $e00</code>. Parts of the memory block with no code or data are filled with the fill value (default: 0) set by <code>canvas</code></td>
+</tr>
+<tr>
+<td><strong><code>warn</code></strong> <em><code>[expr]</code></em></td>
+<td>Set warning level. If <em><code>expr</code></em> evaluates to 0, no warnings are shown. For value 1 (default), warnings are shown. <code>warn</code> without arguments restores the previous warning level</td>
 </tr>
 </tbody>
 </table>
@@ -1163,6 +1172,10 @@ next
 <td><code>alr</code>, <code>anc</code>, <code>ane</code>, <code>arr</code>, <code>dcp</code>, <code>dop</code>, <code>isc</code>, <code>jam</code>, <code>las</code>, <code>lax</code>, <code>nop</code>, <code>rla</code>, <code>rra</code>, <code>sax</code>, <code>sbc</code>, <code>sbx</code>, <code>sha</code>, <code>shx</code>, <code>shy</code>, <code>slo</code>, <code>sre</code>, <code>tas</code>, <code>top</code></td>
 </tr>
 <tr>
+<td>Undocumented 65C02 instructions</td>
+<td><code>dop</code>, <code>nop</code>, <code>top</code></td>
+</tr>
+<tr>
 <td><code>N^=3</code></td>
 <td>Define N in parent scope (and in current scope)</td>
 </tr>
@@ -1220,7 +1233,7 @@ next
 </tr>
 <tr>
 <td>zeropage vs absolute</td>
-<td><code>max65</code> issues a friendly warning when an instruction could have used zeropage addressing mode (saving 1 byte)</td>
+<td><code>max65</code> issues a friendly warning (depending on the warning level set by <code>warn</code>) when an instruction could have used zeropage addressing mode (saving 1 byte)</td>
 </tr>
 <tr>
 <td>forced absolute addressing</td>
@@ -1246,6 +1259,10 @@ next
 <td><code>export</code></td>
 <td>Export (a selection of) globals (named global labels, global constants and macros) to a plain text file, that can be <code>include</code>d again elsewhere</td>
 </tr>
+<tr>
+<td><code>warn</code></td>
+<td>Set warning level. Default: 1 (show warnings)</td>
+</tr>
 </tbody>
 </table>
 <h2 id="supported-instructions">Supported instructions</h2>
@@ -1268,7 +1285,7 @@ But not <code>bbr</code>, <code>bbs</code>, <code>rmb</code>, <code>smb</code> (
 <li>In an <code>if</code>-block or <code>elif</code>-block where the condition evaluates to zero (<code>FALSE</code>), chars and strings still need to be valid because of how the tokeniser works.</li>
 <li>Everything is case insensitive except for symbols which are case sensitive. For example, <code>guard</code>, <code>Guard</code> and <code>GUARD</code> all refer to the same directive. Similarly, <code>lda</code>, <code>LDA</code> and <code>LdA</code> all refer to the same instruction. But <code>sym1</code>, <code>Sym1</code> and <code>SYM1</code> are 3 different symbols.</li>
 <li>Use <code>canvas</code> and <code>copyblock</code> to fill a part of the memory map. Example: <code>canvas &amp;55: copyblock &amp;4000, &amp;4300, &amp;4000</code> (assuming no code/data was in this memory block yet).</li>
-<li>Assembling something like <code>if not defined(&quot;S&quot;): S=123: endif</code> will always generate the warning &quot;value for 'if' directive has changed between passes&quot;. You can safely ignore that.</li>
+<li>Assembling something like <code>if not defined(&quot;S&quot;): S=123: endif</code> will always generate the warning &quot;value for 'if' directive has changed between passes&quot;. You can safely ignore that or disable it (locally) with the <code>warn</code> directive, e.g. <code>warn 0: if not defined(&quot;S&quot;): S=123: endif: warn</code>.</li>
 </ul>
 <h2 id="download-and-install">Download and install</h2>
 <p>The latest release of <code>max65</code> can always be found on <a href="https://github.com/0xC0DE6502/max65-releases">GitHub</a>.</p>
@@ -1286,6 +1303,8 @@ But not <code>bbr</code>, <code>bbs</code>, <code>rmb</code>, <code>smb</code> (
 <pre class="hljs"><code><div>brew install ––cask ––no-quarantine wine-stable 
 WINEDEBUG=-all wine64 max65.exe 
 </div></code></pre>
+<h3 id="syntax-highlighting">Syntax highlighting</h3>
+<p>You can use <a href="https://github.com/0xC0DE6502/max65-syntax-highlighting-releases">this extension</a> for Visual Studio Code to enable syntax highlighting for <code>max65</code> compatible source files.</p>
 <h2 id="changelog">Changelog</h2>
 <table>
 <thead>
@@ -1296,6 +1315,11 @@ WINEDEBUG=-all wine64 max65.exe
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>0.17</td>
+<td>Mar 9, 2023</td>
+<td>Added <code>-O</code> option to show potential code optimisations<br><code>warn</code> directive sets warning level<br>User guide: link to VSCode extension for <code>max65</code> syntax highlighting</td>
+</tr>
 <tr>
 <td>0.16</td>
 <td>Mar 5, 2023</td>
