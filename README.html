@@ -368,7 +368,7 @@ code {
 <h1 id="max65-user-guide">max65 User Guide</h1>
 <p><code>max65</code> is a command-line macro cross-assembler for the 65xx CPU family. It is useful for many systems but it specifically targets 8-bit Acorn computers like the Electron and BBC Micro.</p>
 <p>This user guide explains how to use <code>max65</code> but is not a tutorial on 65xx assembly programming. There are many books and online resources about that.</p>
-<p>The entire <code>max65</code> package is Copyright © 2022-2023 <a href="https://twitter.com/0xC0DE6502">0xC0DE</a> (<a href="mailto:0xC0DE6502@gmail.com">0xC0DE6502@gmail.com</a>). All rights reserved.</p>
+<p>The entire <code>max65</code> package is Copyright © 2022-2025 <a href="https://twitter.com/0xC0DE6502">0xC0DE</a> (<a href="mailto:0xC0DE6502@gmail.com">0xC0DE6502@gmail.com</a>). All rights reserved.</p>
 <h2 id="table-of-contents">Table of contents</h2>
 <p><a href="#example-program">Example program</a><br>
 <a href="#overview">Overview</a><br>
@@ -461,7 +461,7 @@ code {
 <p>In some cases <code>max65</code> needs to make an educated guess in pass 1 about forward references, especially when the choice between zeropage and absolute addressing modes needs to be made. It is therefore recommended (but not required) to define zeropage labels as early as possible in your program.</p>
 <h2 id="command-line-options">Command-line options</h2>
 <p>Here is a brief summary of how to invoke <code>max65</code>:</p>
-<pre class="hljs"><code><div>max65 [-D &lt;sym&gt;=&lt;expr&gt;] [-h] [-l &lt;listfile&gt;] [-O] [-v] &lt;infile&gt;
+<pre class="hljs"><code><div>max65 [-D &lt;sym&gt;=&lt;expr&gt;] [-h] [-l &lt;listfile&gt;] [-O] [-s &lt;sourcemap&gt;] [-v] &lt;infile&gt;
 </div></code></pre>
 <table>
 <thead>
@@ -492,12 +492,16 @@ code {
 <td>Show potential code optimisations</td>
 </tr>
 <tr>
+<td><code>-s &lt;sourcemap&gt;</code></td>
+<td>Create a sourcemap file</td>
+</tr>
+<tr>
 <td><code>-v</code></td>
 <td>Enable verbose output</td>
 </tr>
 </tbody>
 </table>
-<p>Example command-line: <code>max65 -D DBG=1 -v -D MSG=\&quot;hello\&quot; main.6502 -l listing.txt -O</code>.</p>
+<p>Example command-line: <code>max65 -D DBG=1 -v -D MSG=\&quot;hello\&quot; main.6502 -l listing.txt -s map.json -O</code>.</p>
 <h2 id="error-and-warning-messages">Error and warning messages</h2>
 <p>When all goes well <code>max65</code> happily assembles the source file and exits with exit code 0 (success). However, when <code>max65</code> fails to assemble the source file, an error message is written to the standard error file (stderr) and the assembler exits with exit code 1 (failure). An error message shows the source filename, line number and cause of the error. Example of a typical error message: <code>*** error in pass 2: file main.6502, line 10: operator '/' doesn't work on strings</code>.</p>
 <p>In a few cases <code>max65</code> writes a warning message to stderr, but continues assembling your program. Example of a typical warning message: <code>*** warning in pass 2: file main.6502, line 6: instruction 'lda' can be assembled 1 byte shorter in zeropage addressing mode</code>. Set the warning level with the <code>warn</code> directive.</p>
@@ -1315,6 +1319,11 @@ WINEDEBUG=-all wine64 max65.exe
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>0.18</td>
+<td>Mar 8, 2025</td>
+<td>Added <code>-s</code> option to create a sourcemap file, required for sourcelevel debugging 6502 asm with VSCode + Electroniq</td>
+</tr>
 <tr>
 <td>0.17</td>
 <td>Mar 9, 2023</td>

@@ -5,7 +5,7 @@
 
 This user guide explains how to use `max65` but is not a tutorial on 65xx assembly programming. There are many books and online resources about that.
 
-The entire `max65` package is Copyright &#169; 2022-2023 [0xC0DE](https://twitter.com/0xC0DE6502) ([0xC0DE6502@gmail.com](mailto:0xC0DE6502@gmail.com)). All rights reserved.
+The entire `max65` package is Copyright &#169; 2022-2025 [0xC0DE](https://twitter.com/0xC0DE6502) ([0xC0DE6502@gmail.com](mailto:0xC0DE6502@gmail.com)). All rights reserved.
 
 ## Table of contents
 
@@ -115,7 +115,7 @@ In some cases `max65` needs to make an educated guess in pass 1 about forward re
 
 Here is a brief summary of how to invoke `max65`:
 ```
-max65 [-D <sym>=<expr>] [-h] [-l <listfile>] [-O] [-v] <infile>
+max65 [-D <sym>=<expr>] [-h] [-l <listfile>] [-O] [-s <sourcemap>] [-v] <infile>
 ```
 
 | Option | Description |
@@ -125,9 +125,10 @@ max65 [-D <sym>=<expr>] [-h] [-l <listfile>] [-O] [-v] <infile>
 | `-h` | Show a help message and exit |
 | `-l <listfile>` | Create a listing file |
 | `-O` | Show potential code optimisations |
+| `-s <sourcemap>` | Create a sourcemap file |
 | `-v` | Enable verbose output |
 
-Example command-line: `max65 -D DBG=1 -v -D MSG=\"hello\" main.6502 -l listing.txt -O`.
+Example command-line: `max65 -D DBG=1 -v -D MSG=\"hello\" main.6502 -l listing.txt -s map.json -O`.
 
 ## Error and warning messages
 
@@ -543,6 +544,7 @@ You can use [this extension](https://github.com/0xC0DE6502/max65-syntax-highligh
 
 | Version | Date | Changes |
 |-|-|-|
+| 0.18 | Mar 8, 2025 | Added `-s` option to create a sourcemap file, required for sourcelevel debugging 6502 asm with VSCode + Electroniq |
 | 0.17 | Mar 9, 2023 | Added `-O` option to show potential code optimisations<br>`warn` directive sets warning level<br>User guide: link to VSCode extension for `max65` syntax highlighting |
 | 0.16 | Mar 5, 2023 | Export (a selection of) globals with the `export` directive<br>`clear` directive clears block of code/data in memory map<br>`copyblock` directive copies block of code/data<br>`skip` and `align` directives no longer fill the skipped bytes<br>`filler` directive is renamed to `canvas`<br>`%` is optionally allowed at the end of a symbol name<br>User guide: how to run `max65` in macOS + Wine |
 | 0.15 | Feb 28, 2023 | Added 65C02 instruction set (not Rockwell/WDC)<br>`cpu` directive selects 6502 (default) or 65C02<br>Fixed slow assembly when file has a large number of local scopes<br>User guide: list all supported 6502 and 65C02 instructions |
