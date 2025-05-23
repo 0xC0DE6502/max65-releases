@@ -532,7 +532,7 @@ The Windows binary has been tested and found working on macOS 13 (Ventura) with 
 
 For the record, I used `max65` on the following configuration: fresh install of macOS 13 (Ventura, x86_64), Xcode Command-line Tools 14.3, Homebrew 4.0.4 and Wine 8.0. This is how to install Wine and run `max65` (ignore Wine preloader warnings):
 ```
-brew install ––cask ––no-quarantine wine-stable 
+brew install --cask --no-quarantine wine-stable 
 WINEDEBUG=-all wine64 max65.exe 
 ```
 

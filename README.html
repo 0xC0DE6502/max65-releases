@@ -1304,7 +1304,7 @@ But not <code>bbr</code>, <code>bbs</code>, <code>rmb</code>, <code>smb</code> (
 <h3 id="macos">macOS</h3>
 <p>The Windows binary has been tested and found working on macOS 13 (Ventura) with Wine 8.0. Again, I am confident that other combinations of macOS and Wine may work too.</p>
 <p>For the record, I used <code>max65</code> on the following configuration: fresh install of macOS 13 (Ventura, x86_64), Xcode Command-line Tools 14.3, Homebrew 4.0.4 and Wine 8.0. This is how to install Wine and run <code>max65</code> (ignore Wine preloader warnings):</p>
-<pre class="hljs"><code><div>brew install ––cask ––no-quarantine wine-stable 
+<pre class="hljs"><code><div>brew install --cask --no-quarantine wine-stable 
 WINEDEBUG=-all wine64 max65.exe 
 </div></code></pre>
 <h3 id="syntax-highlighting">Syntax highlighting</h3>
